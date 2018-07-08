@@ -1,0 +1,26 @@
+@charset"utf-8";
+/* @Reset */
+html { margin: 0 auto; padding: 0; height: 100%; overflow-x:hidden;}
+body { margin: 0 auto; padding: 0; width: 100%; font-size: 12px;}
+* { margin: 0; padding: 0; outline: none; }
+div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, a, p, blockquote, th, td { margin: 0; padding: 0; vertical-align: baseline; }
+address, caption, cite, code, dfn, em, strong, th, var{ font-style: normal; font-weight: normal; }
+ol, ul ,li{ list-style: none; vertical-align:top;  }
+h1, h2, h3, h4, h5, h6 { font-size: 100%; font-weight: normal; }
+img { border:0; }
+/* @HTML5 */
+article, aside, canvas, details, figcaption, figure, footer, header, hgroup, menu, nav, div, summary, mark { display:block; }
+/* @Global */
+* { font-weight: normal; font-style: normal; }
+/*banner*/
+#head {position: relative; }
+.kvBox {position: absolute; left:50%; top:0; width:1580px; margin-left:-790px; overflow: hidden; height: 350px; background: url("../img/kv_bg.jpg") no-repeat 50% 0; }
+.kvBox .slog_1{ position:  absolute;z-index:2; left: 221px; top: 63px;top:1000px; width: 219px; height: 47px; background: url(../img/kv_img_01.gif) no-repeat 0 0;}
+.kvBox .slog_2{ position:  absolute;z-index:2; left: 221px; top: 128px;top:1000px;width: 361px; height: 45px; background: url(../img/kv_img_02.png) no-repeat 0 0;}
+.kvBox .slog_3{ position:  absolute;z-index:2;  left: 221px; top: 179px;top:1000px;width: 236px; height: 67px; background: url(../img/kv_img_03.png) no-repeat 0 0;}
+.kvBox .slog_4{ position:  absolute;z-index:2;  left: 221px; top: 252px;top:1000px;width: 359px; height: 44px; background: url(../img/kv_img_04.png) no-repeat 0 0;}
+.kvBox .gif_1{ position:  absolute;z-index:2;  left: 583px; top: 238px; width: 86px;width: 0; height: 57px; background: url(../img/kv_gif_1.png) no-repeat 0 0; }
+.kvBox .gif_2{ position:  absolute;z-index:2;  left: 583px; top: 238px; width: 86px;width: 0; height: 57px; background: url(../img/kv_gif_2.png) no-repeat 0 0;}
+.kvBox .person{ position:  absolute; z-index:4;left: 0px; top: 0px;left: 50px; top: 20px; width: 100%;height:100%; background: url(../img/kv_person.png) no-repeat 0 0;}
+.kvBox .air{ position:  absolute; z-index:0;left: 1060px; top: 90px;left: 440px; top: 440px; width: 126px;height:99px; background: url(../img/kv_air.png) no-repeat 0 0;}
+.kvBox .cloud{ position:  absolute; z-index: 1; left: 0px; top: 0px; width: 100%;height: 100%; background: url(../img/kv_cloud.png) repeat-x 0 0;}
