@@ -1,31 +1,134 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=0.23, minimum-scale=0.23,user-scalable=yes">
-<title>jquery背景动画个性全屏焦点图</title>
-<link href="css/zzsc.css" rel="stylesheet" type="text/css" media="all">
-<script src="js/jquery-1.8.2.min.js"></script>
-<script src="js/zzsc.js"></script>
+	<title>My Canvas Test</title>
+	<style type="text/css">
+		* {
+		    margin: 0;
+		    padding: 0;
+		    border: 0;
+		}
+		body{
+			text-align: center;
+		    margin: 0;
+		    padding: 0;
+		    border: 0;
+		    background: #fdfcf8;
+		    font-family: PingFangSC-Regular, Verdana, Arial, 微软雅黑, 宋体;
+    		font-size: 14px;
+		}
+		input[type=button]{
+			width: 50px;
+			height: 25px;
+			background: #1cdede;
+			color: #fff;
+		}
+		canvas #tutorial{
+			background: #fff;
+		}
+		.btn-line{
+			margin: 5px 0;
+		}
+	</style>
 </head>
 <body>
-<div id="wrap">
-  <div id="head">
-    <div class="kvBox">
-            <b class="slog_1"></b><b class="slog_2"></b><b class="slog_3"></b><b class="slog_4"></b>
-            <b class="gif_1"></b><b class="gif_2"></b>
-            <b class="person"></b>
-            <b class="air"></b>
-            <b class="cloud"></b>
-        </div>
+	<canvas id="tutorial" width="350" height="350"><!-- some thing in the canvas -->
+		<img src="image/gif_image.gif" width="150" height="150" alt=""/>
+	</canvas>
+	<div id="btns_1" class="btn-line">
+		<input type="button" name="draw" value="draw" onclick="draw()"/>
+		<input type="button" name="rect" value="rect" onclick="rect()"/>
+		<input type="button" name="smile" value="smile" onclick="smile()"/>
+		<input type="button" name="radiu" value="radiu" onclick="radiu()"/>
+		<input type="button" name="bezier" value="bezier" onclick="bezier()"/>
+		<input type="button" name="quadratic" value="quadratic" onclick="quadratic()"/>
+	</div>
+	<div id="btns_2" class="btn-line">
+		<input type="button" name="cls" value="clear" onclick="cls()"/>
+	</div>
 
-  </div>  
-</div>
-<div id="msg"><span>
-		<h2>Hello , this sublime plugin test</h2>
-	</span></div>
-
+	<script type="text/javascript">
+		var canvas = document.getElementById('tutorial');
+		var ctx = canvas.getContext('2d') || alert("no support");
+        function cls() {
+        	ctx.clearRect(0,0,350,350);
+        }
+		function rect() {
+			ctx.fillStyle = "rgb(200,0,0)";
+			ctx.fillRect (10, 10, 55, 50);
+			ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
+	        ctx.fillRect (30, 30, 55, 50);
+	        ctx.fillStyle = "rgba(0, 200, 0, 0)";
+	        ctx.strokeRect (0, 25, 55, 50);
+		}
+        // ctx.clearRect(45, 45, 60, 60);
+        function draw() {
+        	ctx.clearRect(45, 45, 60, 60);
+        	ctx.fillStyle = "rgba(150, 0, 0, 0.5)";
+        	ctx.beginPath();
+        	ctx.moveTo(75, 50);
+		    ctx.lineTo(150, 75);
+		    ctx.lineTo(100, 25);
+		    ctx.lineTo(75, 50);
+		    ctx.stroke();
+		    // ctx.fill();
+		    
+        }
+        function smile() {
+        	ctx.beginPath();
+		    ctx.arc(175,175,50,0,Math.PI*2,true); // 绘制
+		    ctx.moveTo(210,175);
+		    ctx.arc(175,175,35,0,Math.PI,false);   // 口(顺时针)
+		    ctx.moveTo(165,165);
+		    ctx.arc(160,165,5,0,Math.PI*2,true);  // 左眼
+		    ctx.moveTo(195,165);
+		    ctx.arc(190,165,5,0,Math.PI*2,true);  // 右眼
+		    ctx.stroke();
+        }
+        function radiu() {
+        	ctx.beginPath();
+        	for (let _y = 35; _y < 35 + 50*4; _y += 50) {
+        		for (let _x = 35; _x < 35 + 50 * 4; _x += 50) {
+        			let _start_point = Math.random();
+        			let _end_point = Math.random()*Math.PI;
+        			ctx.moveTo(_x, _y);
+        			ctx.arc(_x, _y, radius = 20, _start_point, _end_point, true);
+        			ctx.lineTo(_x, _y);
+        			_y<= 85?ctx.fill():ctx.stroke()
+        		}
+        	}
+        }
+        // 二次贝塞尔曲线与三次贝塞尔曲线
+        function quadratic() {
+			// 绘制二次贝塞尔曲线，cp1x,cp1y为一个控制点，x,y为结束点。
+        	// quadraticCurveTo(cp1x, cp1y, x, y)
+        	ctx.beginPath();
+        	ctx.moveTo(50,50);
+			ctx.quadraticCurveTo(50,25,150,25);
+			ctx.quadraticCurveTo(200,25,200,50);
+			ctx.quadraticCurveTo(200,75,150,75);
+			ctx.quadraticCurveTo(50,75,50,50);
+			// ctx.quadraticCurveTo(25,100,50,100);
+			// ctx.quadraticCurveTo(50,120,30,125);
+			// ctx.quadraticCurveTo(60,120,65,100);
+			// ctx.quadraticCurveTo(125,100,125,62.5);
+			// ctx.quadraticCurveTo(125,25,75,25);
+			ctx.stroke();
+        }
+        function bezier() {
+        	ctx.beginPath();
+        	ctx.fillStyle = "rgba(230, 20, 55, 0.8)";
+        	// bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y)
+			// 绘制三次贝塞尔曲线，cp1x,cp1y为控制点一，cp2x,cp2y为控制点二，x,y为结束点。
+			ctx.moveTo(75,40);
+			ctx.bezierCurveTo(75,37,70,25,50,25);
+			ctx.bezierCurveTo(20,25,20,62.5,20,62.5);
+			ctx.bezierCurveTo(20,80,40,102,75,120);
+			ctx.bezierCurveTo(110,102,130,80,130,62.5);
+			ctx.bezierCurveTo(130,62.5,130,25,100,25);
+			ctx.bezierCurveTo(85,25,75,37,75,40);
+			ctx.fill();
+        }
+	</script>
 </body>
 </html>
