@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=0.23, minimum-scale=0.23,user-scalable=yes">
+<title>jquery背景动画个性全屏焦点图</title>
+<link href="https://bread-kun.github.io/-/css/zzsc.css" rel="stylesheet" type="text/css" media="all">
+<script src="https://bread-kun.github.io/-/js/jquery-1.8.2.min.js"></script>
+<script src="https://bread-kun.github.io/-/js/zzsc.js"></script>
 	<title>My Canvas Test</title>
 	<style type="text/css">
 		* {
@@ -18,7 +26,7 @@
     		font-size: 14px;
 		}
 		input[type=button]{
-			width: 50px;
+			width: 75px;
 			height: 25px;
 			background: #1cdede;
 			color: #fff;
@@ -47,7 +55,11 @@
 		<input type="button" name="beaner" value="Eat-Beaner" onclick="beaner()"/>
 		<input type="button" name="path2d" value="Path2D" onclick="path2d()"/>
 		<input type="button" name="colorpad" value="ColorPad" onclick="colorpad()"/>
+<<<<<<< HEAD
 		<input type="button" name="spiral" value="Spiral" onclick="spiral()"/>
+=======
+		<input type="button" name="liner" value="Liner" onclick="liner()"/>
+>>>>>>> origin/master
 	</div>
 	<div id="btns_3" class="btn-line">
 		<input type="button" name="cls" value="clear" onclick="cls()"/>
@@ -58,6 +70,7 @@
 		var ctx = canvas.getContext('2d') || alert("no support");
         function cls() {
         	ctx.clearRect(0,0,350,350);
+        	ctx = canvas.getContext('2d') || alert("no support");
         }
 		function rect() {
 			ctx.fillStyle = "rgb(200,0,0)";
@@ -202,22 +215,21 @@
 				ctx.arc(89,102,2,0,Math.PI*2,true);
 				ctx.fill();
 
-				// 封装的一个用于绘制圆角矩形的函数.
-
-				function roundedRect(ctx,x,y,width,height,radius){
-				  ctx.beginPath();
-				  ctx.moveTo(x,y+radius);
-				  ctx.lineTo(x,y+height-radius);
-				  ctx.quadraticCurveTo(x,y+height,x+radius,y+height);
-				  ctx.lineTo(x+width-radius,y+height);
-				  ctx.quadraticCurveTo(x+width,y+height,x+width,y+height-radius);
-				  ctx.lineTo(x+width,y+radius);
-				  ctx.quadraticCurveTo(x+width,y,x+width-radius,y);
-				  ctx.lineTo(x+radius,y);
-				  ctx.quadraticCurveTo(x,y,x,y+radius);
-				  ctx.stroke();
-        		}
-        	}   	
+        	}	
+			// 封装的一个用于绘制圆角矩形的函数.
+			function roundedRect(ctx,x,y,width,height,radius){
+			  ctx.beginPath();
+			  ctx.moveTo(x,y+radius);
+			  ctx.lineTo(x,y+height-radius);
+			  ctx.quadraticCurveTo(x,y+height,x+radius,y+height);
+			  ctx.lineTo(x+width-radius,y+height);
+			  ctx.quadraticCurveTo(x+width,y+height,x+width,y+height-radius);
+			  ctx.lineTo(x+width,y+radius);
+			  ctx.quadraticCurveTo(x+width,y,x+width-radius,y);
+			  ctx.lineTo(x+radius,y);
+			  ctx.quadraticCurveTo(x,y,x,y+radius);
+			  ctx.stroke();
+        	}
         }
         function path2d() {
         	if (ctx) {
@@ -251,6 +263,7 @@
         		}
         	}
         }
+<<<<<<< HEAD
         // 自制一盘蚊香
         function spiral() {
         	// 最大半径
@@ -271,6 +284,116 @@
         		ctx.stroke();
         	}
         }
+=======
+        function liner() {
+        	
+        	
+        	if (ctx) {
+        		roundedRect(ctx, 5,5,150,150,15);
+        		roundedRect(ctx, 175,5,150,150,15);
+        		roundedRect(ctx, 5,175,150,150,15);
+        		roundedRect(ctx, 175,175,150,150,15);
+        		linewidth_t(ctx);
+
+        		lineCap_t(ctx);
+
+        		lineJoin_t(ctx);
+        	}
+
+
+        	// 线宽
+        	// ctx.lineWidth = 2;
+        	function linewidth_t(ctx){
+        		for (var i = 0; i < 10; i++){
+					ctx.lineWidth = 1+i;
+					ctx.beginPath();
+					ctx.moveTo(15+i*14,20);
+					ctx.lineTo(15+i*14,140);
+					ctx.stroke();
+				}
+        	};
+        	// 线条末端样式 {defult=butt,round,square}
+        	// ctx.lineCap = round;
+        	function lineCap_t(ctx) {
+        		var lineCap = ['butt','round','square'];
+
+        		// 创建路径
+        		ctx.strokeStyle = '#88e';
+				ctx.lineWidth = 2;
+        		ctx.beginPath();
+        		ctx.moveTo(185,20);
+        		ctx.lineTo(315,20);
+        		ctx.moveTo(185,140);
+        		ctx.lineTo(315,140);
+        		ctx.stroke();
+
+        		ctx.strokeStyle = 'black';
+				for (var i=0;i<lineCap.length;i++){
+					ctx.lineWidth = 15;
+					ctx.lineCap = lineCap[i];
+					ctx.beginPath();
+					ctx.moveTo(200+i*50,20);
+					ctx.lineTo(200+i*50,140);
+					ctx.stroke();
+				}
+        	}
+        	// lineJoin = type
+			// 设定线条与线条间接合处的样式。
+        	function lineJoin_t(ctx) {
+        		var lineJoin = ['round','bevel','miter'];
+        		ctx.miterLimit = 25;
+        		ctx.lineWidth = 10;
+        		for (var i=0;i<lineJoin.length;i++){
+        			ctx.lineJoin = lineJoin[i];
+					ctx.beginPath();
+					ctx.moveTo(20,200+i*40);
+					ctx.lineTo(50,230+i*40);
+					ctx.lineTo(80,200+i*40);
+					ctx.lineTo(110,230+i*40);
+					ctx.lineTo(140,200+i*40);
+					ctx.stroke();
+  				}
+        	}
+        	// miterLimit = value
+			// 限制当两条线相交时交接处最大长度；所谓交接处长度（斜接长度）是指线条交接处内角顶点到外角顶点的长度。
+			function mitterLimit_t(ctx) {
+				// body...
+			}
+        	// 封装的一个用于绘制圆角矩形的函数.
+			function roundedRect(ctx,x,y,width,height,radius){
+			  ctx.beginPath();
+			  ctx.moveTo(x,y+radius);
+			  ctx.lineTo(x,y+height-radius);
+			  ctx.quadraticCurveTo(x,y+height,x+radius,y+height);
+			  ctx.lineTo(x+width-radius,y+height);
+			  ctx.quadraticCurveTo(x+width,y+height,x+width,y+height-radius);
+			  ctx.lineTo(x+width,y+radius);
+			  ctx.quadraticCurveTo(x+width,y,x+width-radius,y);
+			  ctx.lineTo(x+radius,y);
+			  ctx.quadraticCurveTo(x,y,x,y+radius);
+			  ctx.stroke();
+        	}
+        }
+	</script>
+	<script>
+		function encodec(argument, bit) {
+			let _hex_s = encodeURIComponent(argument).replace(new RegExp("%",'g'), "");
+			let _hex = parseInt(_hex_s, 16);
+			var target = "";
+			if (bit===2 && _hex_s.length > 13) {
+				let _bit_s = "";
+				for (let i = 0; i < _hex_s/13; i++) {
+					_bit_s = parseInt(_hex_s.substr(i*13,(i+1)*13-1)).toString(bit);
+					target.concat(_bit_s);
+				}
+				_bit_s = parseInt(_hex_s.substr(_hex_s.length - _hex_s.length%13, _hex_s.length-1)).toString(bit);
+				target.concat(_bit_s);
+				return target;
+			}
+			let t = _hex.toString(bit);
+			return _hex.toString(bit);
+		}
+>>>>>>> origin/master
 	</script>
 </body>
 </html>
