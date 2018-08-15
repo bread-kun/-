@@ -47,6 +47,7 @@
 		<input type="button" name="beaner" value="Eat-Beaner" onclick="beaner()"/>
 		<input type="button" name="path2d" value="Path2D" onclick="path2d()"/>
 		<input type="button" name="colorpad" value="ColorPad" onclick="colorpad()"/>
+		<input type="button" name="spiral" value="Spiral" onclick="spiral()"/>
 	</div>
 	<div id="btns_3" class="btn-line">
 		<input type="button" name="cls" value="clear" onclick="cls()"/>
@@ -248,6 +249,26 @@
         				ctx.fillRect(_i*(pad/size), _j*(pad/size), (pad/size), (pad/size));
         			}
         		}
+        	}
+        }
+        // 自制一盘蚊香
+        function spiral() {
+        	// 最大半径
+        	var size = 150;
+        	// 圈数*2
+        	var cur = 8;
+        	// 细化程度
+        	var refine = 6;
+        	if (ctx) {
+        		ctx.lineWidth = 3;
+        		ctx.lineCap = "round";
+        		ctx.beginPath();
+        		ctx.moveTo(175+size, 175);
+        		var leve = cur*Math.PI/size/refine;
+        		for (let i = size*refine, pre = 0; i >=0; pre += leve,i--) {
+        			ctx.arc(175,175,i/refine,pre, pre+leve,false);
+        		}
+        		ctx.stroke();
         	}
         }
 	</script>
