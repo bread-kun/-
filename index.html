@@ -55,17 +55,16 @@
 		<input type="button" name="beaner" value="Eat-Beaner" onclick="beaner()"/>
 		<input type="button" name="path2d" value="Path2D" onclick="path2d()"/>
 		<input type="button" name="colorpad" value="ColorPad" onclick="colorpad()"/>
-<<<<<<< HEAD
 		<input type="button" name="spiral" value="Spiral" onclick="spiral()"/>
-=======
 		<input type="button" name="liner" value="Liner" onclick="liner()"/>
->>>>>>> origin/master
 	</div>
 	<div id="btns_3" class="btn-line">
 		<input type="button" name="cls" value="clear" onclick="cls()"/>
+		<input type="button" name="tree" value="Tree" onclick="tree()"/>
 	</div>
 
 	<script type="text/javascript">
+		// var x = prompt("66");
 		var canvas = document.getElementById('tutorial');
 		var ctx = canvas.getContext('2d') || alert("no support");
         function cls() {
@@ -263,7 +262,6 @@
         		}
         	}
         }
-<<<<<<< HEAD
         // 自制一盘蚊香
         function spiral() {
         	// 最大半径
@@ -284,7 +282,6 @@
         		ctx.stroke();
         	}
         }
-=======
         function liner() {
         	
         	
@@ -374,6 +371,107 @@
 			  ctx.stroke();
         	}
         }
+        // show a tree
+        function tree() {
+        	function AvlTree(list) {
+        		this.root = new Node(0, list[0]);
+        		this.root.h = 0;
+        		for (var i = 1; i < list.length; i++) {
+        			this.addNode(new Node(i, list[i]));
+        		}
+        	}
+        	AvlTree.prototype = {
+        		addNode:function(node) {
+        			this.root.addChild(node);
+        		},
+        		rmNode:function(k) {
+        			return null;
+        		},
+        		check:function(root) {
+        		}
+        	}
+        	function Node(k,val) {
+        		this.l = -1;
+        		this.r = -1;
+        		this.k = k;
+        		this.h = 0;
+        		this.v = val;
+        	}
+        	Node.prototype = {
+        		l:-1,r:-1,k:-1,h:-1,v:-1,p:null,
+        		addChild: function(node) {
+        			if (node.v >= this.v) {
+        				if (this.r != -1)
+        					return this.r.addChild(node);
+        				this.r = node;
+        			} else {
+        				if (this.l != -1)
+        					return this.l.addChild(node);
+        				this.l = node;
+        				node.p = this;
+        			}
+        			node.p = this;
+        			let t_node = node;
+        			while (t_node.p != null){
+        				if (t_node.h != t_node.p.h)
+        					break;
+        				t_node = t_node.p;
+        				t_node.h += 1;
+        			}
+        		}
+        	};
+        	// [5, 9, 6, 8, 4, 5, 2, 1, 4, 3, 5, 4, 7]
+        	var ls = [6, 4, 5, 8, 9, 7];
+        	// var ls = []; x = x.split(","); for (i in x){li.push(parseInt(x[i]))}
+        	avl = new AvlTree(ls);
+        	show(avl);
+        	function show(tree) {
+        		let size = 20;
+        		let height = 20;
+        		let width = 20;
+        		let m_h = 350;
+        		let m_w = 350;
+        		let ce = 10;
+        		ctx.font = 'bold '+ size +'px Calibri';
+      			ctx.fillStyle = "black";
+        		ctx.beginPath();
+        		var c_node = tree.root;
+        		// while(c_node != -1){
+        		// 	let _x = m_w;
+        		// }
+        		// ctx.arc(m_w/2,ce + size/2,size/2,0,Math.PI*2,true);
+        		// ctx.fillText(ls[0], m_w/2 - size/2 + size/4, ce + size/2 + size/4);
+        		// ctx.moveTo(m_w/2 - size/2,ce + size); // left
+        		// ctx.lineTo(m_w/2 - size, ce + size + size/2);
+        		// ctx.moveTo(m_w/2,ce + size/2); // right
+        		// ctx.lineTo()
+        		writeNode(ctx, tree.root, m_w/2, ce + size/2);
+        		ctx.stroke();
+        		function writeNode(ctx, node, c_x, c_y, des="root", angle = Math.PI/6, level = 1.5) {
+        			let _r = size/2;
+        			let _sqr_x = _r*Math.cos(angle);
+        			let _sqr_y = _r*Math.sin(angle);
+        			if (des === "root")
+        				ctx.arc(c_x, c_y, _r, 0, Math.PI*2, true);
+        			if (des === "left")
+        				ctx.arc(c_x, c_y, _r, -Math.PI/4, -Math.PI/4+0.01, true);
+        			if (des === "right")
+        				ctx.arc(c_x, c_y, _r, -3*Math.PI/4, -3*Math.PI/4+0.01, true);
+        			ctx.fillText(node.v, c_x - _r/2, c_y + _r/2);
+        			if (node.l != -1) {
+        				ctx.moveTo(c_x - _sqr_x, c_y + _sqr_y);
+        				ctx.lineTo(c_x - (3+level)*_sqr_x, c_y + (3+level)*_sqr_y);
+        				writeNode(ctx, node.l, c_x - (4+level)*_sqr_x, c_y + (4+level)*_sqr_y, "left", angle + 0.1, level - 0.8);
+        			}
+        			if (node.r != -1) {
+        				ctx.moveTo(c_x + _sqr_x, c_y + _sqr_y);
+        				ctx.lineTo(c_x + (3+level)*_sqr_x, c_y + (3+level)*_sqr_y);
+        				writeNode(ctx, node.r, c_x + _sqr_x*(4+level), c_y + (4+level)*_sqr_y, "right", angle + 0.1, level - 0.8);
+        			}
+        		}
+        	}
+        }
+        var avl;
 	</script>
 	<script>
 		function encodec(argument, bit) {
@@ -393,7 +491,6 @@
 			let t = _hex.toString(bit);
 			return _hex.toString(bit);
 		}
->>>>>>> origin/master
 	</script>
 </body>
 </html>
