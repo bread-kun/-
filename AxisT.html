@@ -29,80 +29,85 @@
 <body>
 	<canvas id="canvas" width="800" height="600"></canvas>
 </body>
-<script type="text/javascript">
+<!-- <script type="text/javascript">
 	var ctx = document.getElementById('canvas').getContext('2d') || alert("no support for canvas");
 	ctx.fillStyle = "rgba(150, 0, 0, 0.5)";
 	ctx.beginPath();
 	ctx.moveTo(10,10);
 	ctx.lineTo(10,200);
 	ctx.stroke();
-</script>
+</script> -->
 <script type="text/javascript">
 	// draw a ball
 	var ctx = document.getElementById("canvas").getContext('2d');
-
-	var ball = {
-		x: 100,
-		y: 100,
-		t_x: ctx.canvas.width,
-		t_y: ctx.canvas.height,
-		vx: 5,
-		vy: 2,
-		radius: 10,
-		color: 'blue',
-		speed: 15,
-		running: false,
-		draw: function() {
-			ctx.beginPath();
-			with(this){
-				ctx.arc(x, y, radius, 0, Math.PI * 2, true);
-				ctx.closePath();
-				ctx.fillStyle = color;
-			}
-			ctx.fill();
+	var balls = [];
+	var running = false;
+	var FPS = 120;
+	var t_x = ctx.canvas.width;
+	var t_y = ctx.canvas.height;
+	var num = 10;
+	function ball(x=100, y=100, color="rgb(55,55,230)"){
+		this.x = x;
+		this.y = y;
+		this.vx = 0;
+		this.vy = 0;
+		this.radius = 5;
+		this.color = color;
+	}
+	ball.prototype.draw = function() {
+		ctx.beginPath();
+		with(this){
+			ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+			ctx.closePath();
+			ctx.fillStyle = color;
 		}
+		ctx.fill();
 	};
-	function draw(){
+	function Ball_Animate(){
 		// ctx.clearRect(0,0, canvas.width, canvas.height);
-		ctx.fillStyle = 'rgba(255,255,255,0.5)'
+		ctx.fillStyle = 'rgba(255,255,255,0.2)'
 		ctx.fillRect(0,0,ctx.canvas.width,ctx.canvas.height)
-		ball.draw();
-		ball.x += ball.vx;
-		ball.y += ball.vy;
-		if (ball.y + ball.vy > ctx.canvas.height || ball.y + ball.vy < 0) {
-		  ball.vy = -ball.vy;
+		for (var i = 0; i < balls.length; i++) {
+			t_ball = balls[i];
+			with(t_ball){
+				t_ball.draw();
+				x += vx;
+				y += vy;
+				vx += 1/FPS * (t_x - x + radius);
+				vy += 1/FPS * (t_y - y + radius);
+				vx *=.98;
+				vy *=.98;
+			}
 		}
-		if (ball.x + ball.vx > ctx.canvas.width || ball.x + ball.vx < 0) {
-		  ball.vx = -ball.vx;
-		}
-		// ball.vy *= .99;
-		// ball.vy += .25;
-		with(ball){
-			vx = 1/speed * (t_x - x + radius);
-			vy = 1/speed * (t_y - y + radius);
-		}
-		raf = window.requestAnimationFrame(draw);
+		raf = window.requestAnimationFrame(Ball_Animate);
 	}
 	ctx.canvas.addEventListener('mouseover', function(e){
-	  raf = window.requestAnimationFrame(draw);
-	  ball.running = true
+	  raf = window.requestAnimationFrame(Ball_Animate);
+	  running = true
 	});
 	ctx.canvas.addEventListener('mousemove', function(e){
-		if (ball.running) {
-			with(ball){
-				console.log(e.clientX,e.clientY);
-				t_x = e.clientX - (window.innerWidth - ctx.canvas.width)/2 - radius;
-				t_y = e.clientY - radius;
-				// vx = 1/speed * (e.clientX - x + radius);
-				// vy = 1/speed * (e.clientY - y + radius);
-			}
+		if (running) {
+			console.log(e.clientX,e.clientY);
+			t_x = e.clientX - (window.innerWidth - ctx.canvas.width)/2 - balls[0].radius;
+			t_y = e.clientY - balls[0].radius;
 		}
 	});
 	ctx.canvas.addEventListener('mouseout', function(e){
 	  window.cancelAnimationFrame(raf);
 	  ball.running = false
 	});
-	ball.draw()
+
+	///////////////// draw  //////////////////
+	// gener
+	for (var i = 0; i < num; i++) {
+		let color = "rgb("+ randint(0,255) +","+ randint(0,255) +","+ randint(0,255) +")";
+		balls.push(new ball(randint(0,ctx.canvas.width), randint(0,ctx.canvas.height)));
+		balls[i].draw()
+	}
+	// [a~b]
+	function randint(a, b){
+		return Math.round(Math.random()*(b+1))+a-1;
+	}
 </script>
 <script type="text/javascript">
 	/*	var sun = new Image();
