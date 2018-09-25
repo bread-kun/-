@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dynamic Axis Test</title>
+</head>
+<!-- <link href="https://bread-kun.github.io/-/css/zzsc.css" rel="stylesheet" type="text/css" media="all"> -->
+<!-- <script src="https://bread-kun.github.io/-/js/jquery-1.8.2.min.js"></script> -->
+<style type="text/css">
+	* {
+		    margin: 0;
+		    padding: 0;
+		    border: 0;
+		}
+	body{
+			text-align: center;
+		    margin: 0;
+		    padding: 0;
+		    border: 0;
+		    background: #fdfcf8;
+		    font-family: PingFangSC-Regular, Verdana, Arial, 微软雅黑, 宋体;
+    		font-size: 14px;
+		}
+	#canvas{
+			width: 800px;
+			height: 600px;
+			background: rgba(225, 255, 233, 0.5)
+		}
+</style>
+<body>
+	<canvas id="canvas" width="800" height="600"></canvas>
+</body>
+<!-- <script type="text/javascript">
+	var ctx = document.getElementById('canvas').getContext('2d') || alert("no support for canvas");
+	ctx.fillStyle = "rgba(150, 0, 0, 0.5)";
+	ctx.beginPath();
+	ctx.moveTo(10,10);
+	ctx.lineTo(10,200);
+	ctx.stroke();
+</script> -->
+<script type="text/javascript">
+	// draw a ball
+	var ctx = document.getElementById("canvas").getContext('2d');
+	var balls = [];
+	var running = false;
+	var buffering = false;
+	var FPS = 60;
+	var t_x = ctx.canvas.width;
+	var t_y = ctx.canvas.height;
+	var num = 20000;
+	function ball(x=100, y=100, color="rgb(55,55,230)"){
+		this.x = x;
+		this.y = y;
+		this.vx = 0;
+		this.vy = 0;
+		this.radius = 1;
+		this.color = color;
+	}
+	ball.prototype.draw = function() {
+		ctx.beginPath();
+		with(this){
+			ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+			ctx.closePath();
+			ctx.fillStyle = color;
+		}
+		ctx.fill();
+	};
+	function Ball_Animate(){
+		// ctx.clearRect(0,0, canvas.width, canvas.height);
+		ctx.fillStyle = 'rgba(255,255,255,0.2)'
+		ctx.fillRect(0,0,ctx.canvas.width,ctx.canvas.height)
+		for (var i = 0; i < balls.length; i++) {
+			t_ball = balls[i];
+			t_ball.draw();
+			t_ball.x += t_ball.vx;
+			t_ball.y += t_ball.vy;
+			t_ball.vx += 1/FPS * ((!buffering?t_x:t_ball.t_x) - t_ball.x + t_ball.radius);
+			t_ball.vy += 1/FPS * ((!buffering?t_y:t_ball.t_y) - t_ball.y + t_ball.radius);
+			t_ball.vx *=.98;
+			t_ball.vy *=.98;
+		}
+		raf = window.requestAnimationFrame(Ball_Animate);
+	}
+	ctx.canvas.addEventListener('mouseover', function(e){
+	  raf = window.requestAnimationFrame(Ball_Animate);
+	  running = true
+	});
+	ctx.canvas.addEventListener('mousemove', function(e){
+		if (running && !buffering) {
+			console.log(e.clientX,e.clientY);
+			t_x = e.clientX - (window.innerWidth - ctx.canvas.width)/2 - balls[0].radius;
+			t_y = e.clientY - balls[0].radius;
+		}
+	});
+	ctx.canvas.addEventListener('click', function(e){
+		if (running && !buffering) {
+			buffering = true;
+			for (var i = 0; i < balls.length; i++) {
+				balls[i].t_x = randint(0,ctx.canvas.width);
+				balls[i].t_y = randint(0,ctx.canvas.height);
+			}
+			setTimeout(function(){buffering = false}, 500);
+		}
+	});
+	ctx.canvas.addEventListener('mouseout', function(e){
+	  window.cancelAnimationFrame(raf);
+	  ball.running = false
+	});
+
+	///////////////// draw  //////////////////
+	// gener
+	for (var i = 0; i < num; i++) {
+		let color = "rgb("+ randint(0,255) +","+ randint(0,255) +","+ randint(0,255) +")";
+		balls.push(new ball(randint(0,ctx.canvas.width), randint(0,ctx.canvas.height), color));
+		balls[i].draw()
+	}
+	// [a~b]
+	function randint(a, b){
+		return Math.round(Math.random()*(b+1))+a-1;
+	}
+</script>
+<script type="text/javascript">
+	/*	var sun = new Image();
+	var moon = new Image();
+	var earth = new Image();
+	function init(){
+	  sun.src = 'https://mdn.mozillademos.org/files/1456/Canvas_sun.png';
+	  moon.src = 'https://mdn.mozillademos.org/files/1443/Canvas_moon.png';
+	  earth.src = 'https://mdn.mozillademos.org/files/1429/Canvas_earth.png';
+	  window.requestAnimationFrame(draw);
+	}
+
+	function draw() {
+	  var ctx = document.getElementById('canvas').getContext('2d');
+	  // lowest level addon,the other is 'source-over'
+	  ctx.globalCompositeOperation = 'destination-over';
+	  ctx.clearRect(0,0,300,300); // clear canvas
+
+	  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+	  ctx.strokeStyle = 'rgba(0,153,255,0.4)';
+	  ctx.save();
+	  ctx.translate(150,150);
+
+	  // Earth
+	  var time = new Date();
+	  ctx.rotate( ((2*Math.PI)/60)*time.getSeconds() + ((2*Math.PI)/60000)*time.getMilliseconds() );
+	  // reset the source point (0,0) to (105,0)
+	  ctx.translate(105,0);
+	  ctx.fillRect(0,-12,50,24); // Shadow
+	  ctx.drawImage(earth,-12,-12);
+
+	  // Moon
+	  ctx.save();
+	  ctx.rotate( ((2*Math.PI)/6)*time.getSeconds() + ((2*Math.PI)/6000)*time.getMilliseconds() );
+	  ctx.translate(0,28.5);
+	  ctx.drawImage(moon,-3.5,-3.5);
+	  ctx.restore();
+
+	  ctx.restore();
+	  
+	  ctx.beginPath();
+	  ctx.arc(150,150,105,0,Math.PI*2,false); // Earth orbit
+	  ctx.stroke();
+	 
+	  ctx.drawImage(sun,0,0,300,300);
+
+	  window.requestAnimationFrame(draw);
+	}
+
+	init();
+	*/
+</script>
+</html>

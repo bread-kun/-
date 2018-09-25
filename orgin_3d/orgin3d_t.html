@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Cube view</title>
+</head>
+<style type="text/css">
+	* {
+  		margin: 0;
+  		padding: 0;
+  		border: 0;
+  		overflow: hidden;
+  		-webkit-user-select: none;
+  		-moz-user-select: none;
+  		-ms-user-select: none;
+  		-o-user-select: none;
+  		user-select: none;
+	}
+    body {
+    	text-align: center;
+    	background: #F2F2F2;
+    	font-family: PingFangSC-Regular, Verdana, Arial, 微软雅黑, 宋体;
+    	font-size: 14px;
+	}
+    a {
+        font-family: sans-serif;
+        color: #444;
+        text-decoration: none;
+        font-size: 20px;
+    }
+    p {
+        font-family: Arial, sans-serif;
+        color: #666;
+        text-align: justify;
+        font-size: 16px;
+        margin: 10px 16px;
+    }
+    canvas {
+    	margin-top: 2%;
+    	background:  #fdfcf8;
+    	width: 80%;
+    	height: 95%;
+    	max-width: 800px;
+    	max-height: 800px;
+    }
+    #footer {
+        color: #dec0c5;
+        font-family: PingFangSC-Regular, Verdana, Arial, 微软雅黑, 宋体;
+        text-decoration: none;
+        font-size: 10px;
+    }
+</style>
+<body>
+	<canvas id="canvas" width="800" height="400"></canvas>
+	<br/><a id="footer" target="_blank" href="http://web.jobbole.com/86929/"> >> see about <<</a>
+</body>
+<script type="text/javascript">
+	var canvas = document.getElementById("canvas") || null;
+	var ctx = canvas.getContext('2d') || null;
+    
+	// defind base node type
+	var Vertex = function (x,y,z) {
+		this.x = parseFloat(x);
+		this.y = parseFloat(y);
+		this.z = parseFloat(z);
+	}
+	// generate the cube
+	var Cube = function(center_point, size) {
+		let d = size / 2;
+
+		this.vertices = [
+			new Vertex(center_point.x - d, center_point.y - d, center_point.y + d),
+			new Vertex(center_point.x + d, center_point.y - d, center_point.y + d),
+			new Vertex(center_point.x - d, center_point.y + d, center_point.y + d),
+			new Vertex(center_point.x + d, center_point.y + d, center_point.y + d),
+			new Vertex(center_point.x - d, center_point.y + d, center_point.y - d),
+			new Vertex(center_point.x + d, center_point.y + d, center_point.y - d),
+			new Vertex(center_point.x - d, center_point.y - d, center_point.y - d),
+			new Vertex(center_point.x + d, center_point.y - d, center_point.y - d),
+		];
+
+		// Generate the faces
+    	this.faces = [
+    	    [this.vertices[0], this.vertices[1], this.vertices[3], this.vertices[2]],
+    	    [this.vertices[2], this.vertices[3], this.vertices[5], this.vertices[4]],
+    	    [this.vertices[0], this.vertices[2], this.vertices[4], this.vertices[6]],
+    	    [this.vertices[1], this.vertices[3], this.vertices[5], this.vertices[7]],
+    	    [this.vertices[0], this.vertices[1], this.vertices[7], this.vertices[6]],
+    	    [this.vertices[4], this.vertices[5], this.vertices[7], this.vertices[6]]
+    	];
+	}
+
+	// mapping on the canvas x^y
+	var Vertex2D = function(x, y) {
+    	this.x = parseFloat(x);
+    	this.y = parseFloat(y);
+	};
+	if (ctx && canvas) {
+		// Objects style
+    	ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+    	ctx.fillStyle = 'rgba(0, 150, 255, 0.3)';
+
+		function render(objects, ctx, dx, dy) {
+			// ctx.clearRect(0,0, canvas_W, canvas_H);
+    		// For each object
+    		for (var i = 0, n_obj = objects.length; i < n_obj; ++i) {
+        		// For each face
+        		for (var j = 0, n_faces = objects[i].faces.length; j < n_faces; ++j) {
+    		        // Current face
+    		        var face = objects[i].faces[j];
+    		        // Draw the first vertex
+    		        // 绘制第一个顶点
+    		        var P = mapping(face[0]);
+    		        ctx.beginPath();
+    		        ctx.moveTo(P.x + dx, -P.y + dy);
+                    console.log("moveTo " + (P.x + dx) + " , " + (P.y + dy));
+    		        // Draw the other vertices
+    		        // 绘制其余顶点
+    		        for (var k = 1, n_vertices = face.length; k < n_vertices; ++k) {
+    		            P = mapping(face[k]);
+    		            ctx.lineTo(P.x + dx, -P.y + dy);
+                        console.log("draw to " + (P.x + dx) + " , " + (P.y + dy));
+    		        }
+    		        // Close the path and draw the face
+    		        ctx.closePath();
+    		        ctx.stroke();
+    		        ctx.fill();
+    		    }
+    		}
+		}
+
+		function mapping(V) {
+   			// Distance between the camera and the plane
+   			return new Vertex2D((canvas_W/2 + (V.x - carmera.x)*distance/(carmera.z-V.z)), (canvas_H/2 - (V.y - carmera.y)*distance/(carmera.z-V.z)));
+		}
+        // Fix the canvas width and height
+        var canvas_W = 300;
+        var canvas_H = 150;
+        // carmera point
+        // defult deraction: (0,0,-1)
+        var carmera = new Vertex(canvas_W / 2, canvas_H /2, canvas_W);
+        var distance = canvas_W / 5;
+		var cube_center = new Vertex(50, 50, 50);
+    	var cube = new Cube(cube_center, 25);
+    	var objects = [cube];
+	
+    	// First render
+    	render(objects, ctx, 0, 0);
+	}
+
+</script>
+</html>
