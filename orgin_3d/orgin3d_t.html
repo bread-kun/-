@@ -55,6 +55,12 @@
 	<br/><a id="footer" target="_blank" href="http://web.jobbole.com/86929/"> >> see about <<</a>
 </body>
 <script type="text/javascript">
+    /////////////////////////////////////////////////////////////////
+    //
+    //        next step is to let more objcet visable in zoom (such like a ball)
+    //              and let obj be controllerable
+    //
+    /////////////////////////////////////////////////////////////////
     var $D = document;
 	var canvas = document.getElementById("canvas") || null;
 	var ctx = canvas.getContext('2d') || null;
@@ -66,56 +72,14 @@
         var canvas_H = 400;
         // carmera point
         // default deraction: (0,0,-1)
-        var carmera = new Vertex(canvas_W / 4, canvas_H / 4, canvas_W / 4);
+        var carmera = new $z.Vertex(canvas_W / 4, canvas_H / 4, canvas_W / 4);
         var distance = canvas_W / 3;
-		var cube_center = new Vertex(50, 50, 50);
-    	var cube = new Cube(cube_center, 25);
+		var cube_center = new $z.Vertex(50, 50, 50);
+    	var cube = new $z.Cube(cube_center, 25);
     	var objects = [cube];
-
-	    function draw_Axis(carmera) {
-            let crm = carmera;
-            let _org = mapping(new Vertex(0,0,0), crm);
-            let eager_xyz = [new Vertex(99999, 0, 0),new Vertex(0, 99999, 0),new Vertex(0,0, carmera.z - 1)];
-            let eager_color = ['rgba(60,240,60,0.35)','rgba(60,60,240,0.35)','rgba(240,60,60,0.35)'];
-            for (let i = 2; i >= 0; i--) {
-                ctx.beginPath();
-                ctx.moveTo(_org.x, _org.y);
-                ctx.strokeStyle = eager_color[i];
-                var _e = mapping(eager_xyz[i], crm);
-                ctx.lineTo(_e.x, _e.y);
-                ctx.stroke();
-            }
-        }
-    	// First render
-        
-        // !(function(obj) {
-        //     ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-        //     ctx.fillStyle = 'rgba(0, 150, 255, 0.3)';
-        //     var face = obj.faces[0];
-        //     // Current face
-        //     // Draw the first vertex
-        //     let P = mapping(face[0]);
-        //     ctx.beginPath();
-        //     ctx.moveTo(P.x, P.y);
-        //     console.log("moveTo " + (P.x) + " , " + (P.y));
-        //     for (var j = 1, _count = 0; _count < face.length; j=(j+1)%4,_count++) {
-        //         P = mapping(face[j]);
-        //         console.log("draw to " + (P.x) + " , " + (P.y));
-        //         ctx.lineTo(P.x, P.y);
-        //         // line to first vertex for a circle
-        //     }
-        //     // Close the path and draw the face
-        //     ctx.closePath();
-        //     ctx.stroke();
-        //     ctx.fill();
-        // })(cube);
         console.log("carmera:",carmera);
-        function re_draw(ctx) {
-            ctx.clearRect(0,0,canvas_W,canvas_H);
-            draw_Axis(carmera);
-            paint(objects, ctx, carmera, 0, 0);
-        }
-        re_draw(ctx);
+        
+        $z.re_draw(ctx);
         // https://keycode.info/
         $D.onkeydown=function(event) {
             var e = event || window.event;
@@ -150,7 +114,7 @@
                         console.log("press no in case :", e.keyCode)
                         break;
                 }
-                return re_draw(ctx);
+                return $z.re_draw(ctx);
             }
         }
     }
