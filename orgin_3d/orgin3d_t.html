@@ -64,7 +64,6 @@
     var $D = document;
 	var canvas = document.getElementById("canvas") || null;
 	var ctx = canvas.getContext('2d') || null;
-    
 	if (ctx && canvas) {
 		
         // Fix the canvas width and height
@@ -76,7 +75,8 @@
         var distance = canvas_W / 3;
 		var cube_center = new $z.Vertex(50, 50, 50);
     	var cube = new $z.Cube(cube_center, 25);
-    	var objects = [cube];
+        var myball = $z.Ball(36, 50, new $z.Vertex(0,0,0))
+    	var objects = [myball];
         console.log("carmera:",carmera);
         
         $z.re_draw(ctx);
@@ -108,6 +108,22 @@
                         break;
                     // -
                     case 109:
+                        distance += steep;
+                        break;
+                    // a
+                    case 65:
+                        distance += steep;
+                        break;
+                    // w
+                    case 87:
+                        distance += steep;
+                        break;
+                    // d
+                    case 68:
+                        distance += steep;
+                        break;
+                    // s
+                    case 83:
                         distance += steep;
                         break;
                     default:

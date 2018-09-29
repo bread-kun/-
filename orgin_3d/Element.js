@@ -25,7 +25,15 @@
 	var Ball = function (n, radius, center_point) {
 		function MyBall(vertices,faces) {
 			this.vertices = vertices;
-			this.faces = faces;
+			this.faces = [];
+			console.log(faces);
+			for (var i = 0; i < faces.length; i++) {
+				var face = [];
+				for (var j = 0; j < faces[i].length; j++) {
+					face.push(this.vertices[faces[i][j]]);
+				}
+				this.faces.push(face);
+			}
 		}
 		if (!n%2) throw "Error param in n="+n;
 		let r = radius, cp = center_point;
@@ -36,22 +44,24 @@
 		let sin = Math.sin, cos = Math.cos;
 		this.vertices = [];
 		let t_vertices = [];
+		// last bottom vertex
+		let last_vertex;
 		// set a Basis vectors on the x axis (r, 0, 0)
 		t_vertices.push(new Vertex(r, 0, 0));
 		// Rotating around y axis for (n-1) times
-		for (var i = 1; i < n; i++) {
+		for (var i = 1; i <= n/2; i++) {
 			t_vertices.push(rotate(t_vertices[0], toRadians(d*i), 'y', org_p))
 		}
+		last_vertex = t_vertices.pop();
 		console.log("generating ball in rotating around y axis ->",t_vertices);
 		// then , all vertices rotating around z axis for (n/2 -1) times [ignore vertice whitch on the z axis]
 		let t_t_vertices = t_vertices.slice();
-		for (var i = 1; i < n/2; i++) {
-			for (var j = 0; j < t_t_vertices.length; j++) {
-				if (t_t_vertices[j].z == 0)
-					continue;
-				t_vertices.push(rotate(t_vertices[0], toRadians(d*i), 'z', org_p))
+		for (var i = 1; i < n; i++) {
+			for (var j = 1; j < t_t_vertices.length; j++) {
+				t_vertices.push(rotate(t_vertices[j], toRadians(d*i), 'z', org_p))
 			}
 		}
+		t_vertices.push(last_vertex);
 		delete t_t_vertices;
 		console.log("generating ball in rotating around z axis ->",t_vertices)
 		
@@ -62,25 +72,34 @@
 		var _pa;
 		var _pb;
 		var _dist = 2*radius*Math.sin(toRadians(d));
-		for (var i = 0; i < t_vertices.length; i++) {
-			// link three point to be a face, first point should in distence 2*r*sin$
-			_nears.length = 0;
-			_pa = t_vertices[i];
-			for (var _cp = 0; _nears.length < n && _cp < t_vertices.length; _cp++) {
-				if (_pa === t_vertices[_cp])
-					continue;
-				if (distence(_pa, t_vertices[cp]).toFixed(8) == (_dist*_dist).toFixed(8))
-					_nears.push(_cp);
-			}
-			console.log("++ point ++ " + _pa.say() + " nears is --");
-			console.log(_nears.slice());
-			t_t_vertices = _nears.slice();
-			for (var j = 0; j < t_t_vertices.length; j++) {
-				[j]
-			}
-			t_vertices[i]
+		var _step = n/2-1;
+		for (var i = 0,j = 1; i < n; i++, j++) {
+			faces.push([0,1+i*_step,(1+j*_step)%t_vertices.length]);
+			faces.push([n-1,_step+i*_step,(_step+j*_step)%t_vertices.length]);
 		}
-		return new MyBall(t_vertices,0);
+		for (var i = 1; i < n/2-1; i++) {
+			for (var j = 0,k = 1; j < n; j++,k++) {
+				faces.push([i+j*_step,(i+k*_step)%(t_vertices.length-1),(i+k*_step)%(t_vertices.length-1)+1,i+j*_step+1])
+			}
+		}
+		// for (var i = 0; i < t_vertices.length; i++) {
+		// 	// link three point to be a face, first point should in distence 2*r*sin$
+		// 	_nears.length = 0;
+		// 	_pa = t_vertices[i];
+		// 	for (var _cp = 0; _nears.length < n && _cp < t_vertices.length; _cp++) {
+		// 		if (_pa === t_vertices[_cp])
+		// 			continue;
+		// 		console.log("=============",_pa, t_vertices[cp]);
+		// 		if (distence(_pa, t_vertices[cp]).toFixed(8) == (_dist*_dist).toFixed(8))
+		// 			_nears.push(_cp);
+		// 	}
+		// 	console.log("++ point ++ " + _pa.say() + " nears is --");
+		// 	console.log(_nears.slice());
+		// 	t_t_vertices = _nears.slice();
+		// 	for (var j = 0; j < t_t_vertices.length; j++) {
+		// 	}
+		// }
+		return new MyBall(t_vertices,faces);
 	}
 
 	// generate the cube
@@ -117,7 +136,15 @@
 	// @param two point Vertex
 	// @param	detail	if true, there will use sqrt function to get the detail distence, or not just for compare
 	function distence(point_a, point_b, detail) {
-		let res = (point_a.x-point_b.x)*(point_a.x-point_b.x) + (point_a.y-point_b.y)*(point_a.y-point_b.y) + (point_a.z-point_b.z)*(point_a.z-point_b.z);
+		let res;
+		let a = point_a	|| null, b = point_b || null;
+		if (!a&b) throw "Error param number in distence	";
+		// smart to divise to array or Vertex
+		if (a instanceof Array && b instanceof Array && a.length === 3 && 3 === b.length)
+			res = (a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) + (a[2]-b[2])*(a[2]-b[2]);
+		if (a instanceof Vertex && b instanceof Vertex)
+			res = (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) + (a.z-b.z)*(a.z-b.z);
+		console.log(a instanceof Vertex);
 		return detail?Math.sqrt(res):res;
 	}
 	function mapping(V, carmera) {
@@ -173,9 +200,14 @@
 				for (var _f = 0; _f < f_len; _f++) {
 					// every point of current face
 					var _p = obj.faces[i][_f];
-					_sum_x += _p.x;
-					_sum_y += _p.y;
-					_sum_z += _p.z;
+					try{
+						_sum_x += _p.x;
+						_sum_y += _p.y;
+						_sum_z += _p.z;
+					}catch(e){
+						console.log(i,_f);
+						throw e;
+					}
 				}
 				c_p = new Vertex(_sum_x/f_len, _sum_y/f_len, _sum_z/f_len);
 				_judge_vals.push(((c_p.x - carmera.x)*(c_p.x - carmera.x) + (c_p.y - carmera.y)*(c_p.y - carmera.y) + (c_p.z - carmera.z)*(c_p.z - carmera.z)));
@@ -234,6 +266,9 @@
             ctx.lineTo(_e.x, _e.y);
             ctx.stroke();
         }
+    }
+    function carmera_rotate() {
+    	// body...
     }
     // AntiClock rotate
     function rotate(target_vertex, rotate, axis, around_point) {
