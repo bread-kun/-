@@ -40,7 +40,7 @@
 	</style>
 </head>
 <body>
-	<canvas id="tutorial" width="350" height="350"><!-- some thing in the canvas -->
+	<canvas id="tutorial" width="700" height="700"><!-- some thing in the canvas -->
 		<img src="image/gif_image.gif" width="150" height="150" alt=""/>
 	</canvas>
 	<div id="btns_1" class="btn-line">
@@ -68,7 +68,9 @@
 		var canvas = document.getElementById('tutorial');
 		var ctx = canvas.getContext('2d') || alert("no support");
         function cls() {
-        	ctx.clearRect(0,0,350,350);
+            let w = parseInt(document.getElementsByTagName("canvas")[0].getAttribute("width"));
+            let h = parseInt(document.getElementsByTagName("canvas")[0].getAttribute("height"));
+        	ctx.clearRect(0,0,w,h);
         	ctx = canvas.getContext('2d') || alert("no support");
         }
 		function rect() {
@@ -374,11 +376,9 @@
         // show a tree
         function tree() {
         	function AvlTree(list) {
-        		this.root = new Node(0, list[0]);
-        		this.root.h = 0;
-        		for (var i = 1; i < list.length; i++) {
-        			this.addNode(new Node(i, list[i]));
-        		}
+                this.root = new Node(0, list[0]);
+        		for (var i = 1; i < list.length; i++)
+                    this.addNode(new Node(i, list[i]));
         	}
         	AvlTree.prototype = {
         		addNode:function(node) {
@@ -390,12 +390,8 @@
         		check:function(root) {
         		}
         	}
-        	function Node(k,val) {
-        		this.l = -1;
-        		this.r = -1;
-        		this.k = k;
-        		this.h = 0;
-        		this.v = val;
+        	function Node(key,val) {
+                with(this){l = -1;r = -1;k = key;h = 0;v = val;}
         	}
         	Node.prototype = {
         		l:-1,r:-1,k:-1,h:-1,v:-1,p:null,
@@ -421,52 +417,46 @@
         		}
         	};
         	// [5, 9, 6, 8, 4, 5, 2, 1, 4, 3, 5, 4, 7]
-        	var ls = [6, 4, 5, 8, 9, 7];
+        	var ls = [6, 4, 15, 8, 9, 21, 2, 1, 11, 3, 5, 0, 7, 6.5, 5.9];
         	// var ls = []; x = x.split(","); for (i in x){li.push(parseInt(x[i]))}
         	avl = new AvlTree(ls);
-        	show(avl);
-        	function show(tree) {
-        		let size = 20;
-        		let height = 20;
-        		let width = 20;
-        		let m_h = 350;
-        		let m_w = 350;
-        		let ce = 10;
-        		ctx.font = 'bold '+ size +'px Calibri';
+        	show(avl, 30, 100);
+        	function show(tree, radius, margin_top) {
+        		let size = radius || 20;  // radius
+        		let m_h = parseInt(document.getElementsByTagName("canvas")[0].getAttribute("height"));
+        		let m_w = parseInt(document.getElementsByTagName("canvas")[0].getAttribute("width"));
+        		let top = margin_top || 10;
+        		ctx.font = 'bold '+ size/2 +'px Calibri';
       			ctx.fillStyle = "black";
         		ctx.beginPath();
-        		var c_node = tree.root;
-        		// while(c_node != -1){
-        		// 	let _x = m_w;
-        		// }
-        		// ctx.arc(m_w/2,ce + size/2,size/2,0,Math.PI*2,true);
-        		// ctx.fillText(ls[0], m_w/2 - size/2 + size/4, ce + size/2 + size/4);
-        		// ctx.moveTo(m_w/2 - size/2,ce + size); // left
-        		// ctx.lineTo(m_w/2 - size, ce + size + size/2);
-        		// ctx.moveTo(m_w/2,ce + size/2); // right
-        		// ctx.lineTo()
-        		writeNode(ctx, tree.root, m_w/2, ce + size/2);
+        		writeNode(ctx, tree.root, m_w/2, top + size/2);
         		ctx.stroke();
-        		function writeNode(ctx, node, c_x, c_y, des="root", angle = Math.PI/6, level = 1.5) {
+        		function writeNode(ctx, node, c_x, c_y, des="root") {
         			let _r = size/2;
-        			let _sqr_x = _r*Math.cos(angle);
-        			let _sqr_y = _r*Math.sin(angle);
+                    let len = 4;    // 斜边的长度 *单位半径
+                    let hl = 3;     // 高度       *单位半径
+                    let _cos,_sin;
         			if (des === "root")
         				ctx.arc(c_x, c_y, _r, 0, Math.PI*2, true);
         			if (des === "left")
         				ctx.arc(c_x, c_y, _r, -Math.PI/4, -Math.PI/4+0.01, true);
         			if (des === "right")
         				ctx.arc(c_x, c_y, _r, -3*Math.PI/4, -3*Math.PI/4+0.01, true);
-        			ctx.fillText(node.v, c_x - _r/2, c_y + _r/2);
+                    let font_w = ctx.measureText(node.v).width;
+        			ctx.fillText(node.v, c_x - font_w/2, c_y + _r/3);
         			if (node.l != -1) {
-        				ctx.moveTo(c_x - _sqr_x, c_y + _sqr_y);
-        				ctx.lineTo(c_x - (3+level)*_sqr_x, c_y + (3+level)*_sqr_y);
-        				writeNode(ctx, node.l, c_x - (4+level)*_sqr_x, c_y + (4+level)*_sqr_y, "left", angle + 0.1, level - 0.8);
+                        _cos = hl/(len+2*node.l.h);
+                        _sin = Math.sqrt(1-_cos*_cos);
+        				ctx.moveTo(c_x - _r*_sin, c_y + _r*_cos);
+        				ctx.lineTo(c_x - (len-1+node.l.h)*_r*_sin, c_y + (len-1+node.l.h)*_r*_cos);
+        				writeNode(ctx, node.l, c_x - (len+node.l.h)*_r*_sin, c_y + (len+node.l.h)*_r*_cos, "left");
         			}
         			if (node.r != -1) {
-        				ctx.moveTo(c_x + _sqr_x, c_y + _sqr_y);
-        				ctx.lineTo(c_x + (3+level)*_sqr_x, c_y + (3+level)*_sqr_y);
-        				writeNode(ctx, node.r, c_x + _sqr_x*(4+level), c_y + (4+level)*_sqr_y, "right", angle + 0.1, level - 0.8);
+                        _cos = hl/(len+2*node.r.h);
+                        _sin = Math.sqrt(1-_cos*_cos);
+        				ctx.moveTo(c_x + _r*_sin, c_y + _r*_cos);
+        				ctx.lineTo(c_x + (len-1+node.r.h)*_r*_sin, c_y + (len-1+node.r.h)*_r*_cos);
+        				writeNode(ctx, node.r, c_x + (len+node.r.h)*_r*_sin, c_y + (len+node.r.h)*_r*_cos, "right");
         			}
         		}
         	}

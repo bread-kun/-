@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Cube view</title>
+</head>
+<style type="text/css">
+	* {
+  		margin: 0;
+  		padding: 0;
+  		border: 0;
+  		overflow: hidden;
+  		-webkit-user-select: none;
+  		-moz-user-select: none;
+  		-ms-user-select: none;
+  		-o-user-select: none;
+  		user-select: none;
+	}
+    body {
+    	text-align: center;
+    	background: #F2F2F2;
+    	font-family: PingFangSC-Regular, Verdana, Arial, 微软雅黑, 宋体;
+    	font-size: 14px;
+	}
+    a {
+        font-family: sans-serif;
+        color: #444;
+        text-decoration: none;
+        font-size: 20px;
+    }
+    p {
+        font-family: Arial, sans-serif;
+        color: #666;
+        text-align: justify;
+        font-size: 16px;
+        margin: 10px 16px;
+    }
+    canvas {
+    	margin-top: 2%;
+    	background:  #fdfcf8;
+    	width: 80%;
+    	height: 95%;
+    	max-width: 800px;
+    	max-height: 800px;
+    }
+    #footer {
+        color: #dec0c5;
+        font-family: PingFangSC-Regular, Verdana, Arial, 微软雅黑, 宋体;
+        text-decoration: none;
+        font-size: 10px;
+    }
+</style>
+<body>
+	<canvas id="canvas"></canvas>
+	<br/><a id="footer" target="_blank" href="http://web.jobbole.com/86929/"> >> see about <<</a>
+</body>
+<script type="text/javascript">
+	var canvas = document.getElementById("canvas") || null;
+	var ctx = canvas.getContext('2d') || null;
+    // Fix the canvas width and height
+    const canvas_W = 800;
+    const canvas_H = 400;
+    // carmera point
+    // defult deraction: (0,0,-1)
+    const carmera = Vertex(canvas_W / 2, canvas_H /2, 500);
+	// defind base node type
+	var Vertex = function (x,y,z) {
+		this.x = parseFloat(x);
+		this.y = parseFloat(y);
+		this.z = parseFloat(z);
+	}
+	// generate the cube
+	var Cube = function(center_point, size) {
+		let d = size / 2;
+
+		this.vertices = [
+			new Vertex(center_point.x - d, center_point.y - d, center_point.y + d),
+			new Vertex(center_point.x - d, center_point.y - d, center_point.y - d),
+			new Vertex(center_point.x + d, center_point.y - d, center_point.y - d),
+			new Vertex(center_point.x + d, center_point.y - d, center_point.y + d),
+			new Vertex(center_point.x + d, center_point.y + d, center_point.y + d),
+			new Vertex(center_point.x + d, center_point.y + d, center_point.y - d),
+			new Vertex(center_point.x - d, center_point.y + d, center_point.y - d),
+			new Vertex(center_point.x - d, center_point.y + d, center_point.y + d),
+		];
+
+		// Generate the faces
+    	this.faces = [
+    	    [this.vertices[0], this.vertices[1], this.vertices[2], this.vertices[3]],
+    	    [this.vertices[3], this.vertices[2], this.vertices[5], this.vertices[4]],
+    	    [this.vertices[4], this.vertices[5], this.vertices[6], this.vertices[7]],
+    	    [this.vertices[7], this.vertices[6], this.vertices[1], this.vertices[0]],
+    	    [this.vertices[7], this.vertices[0], this.vertices[3], this.vertices[4]],
+    	    [this.vertices[1], this.vertices[6], this.vertices[5], this.vertices[2]]
+    	];
+	}
+
+	// mapping on the canvas x^z
+	var Vertex2D = function(x, y) {
+    	this.x = parseFloat(x);
+    	this.y = parseFloat(y);
+	};
+	if (ctx && canvas) {
+		// Objects style
+    	ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+    	ctx.fillStyle = 'rgba(0, 150, 255, 0.3)';
+
+		function render(objects, ctx, dx, dy) {
+			ctx.clearRect(0,0, canvas_W, canvas_H);
+    		// For each object
+    		for (var i = 0, n_obj = objects.length; i < n_obj; ++i) {
+        		// For each face
+        		for (var j = 0, n_faces = objects[i].faces.length; j < n_faces; ++j) {
+    		        // Current face
+    		        var face = objects[i].faces[j];
+    		        // Draw the first vertex
+    		        // 绘制第一个顶点
+    		        var P = mapping(face[0]);
+    		        ctx.beginPath();
+    		        ctx.moveTo(P.x + dx, -P.y + dy);
+    		        // Draw the other vertices
+    		        // 绘制其余顶点
+    		        for (var k = 1, n_vertices = face.length; k < n_vertices; ++k) {
+    		            P = mapping(face[k]);
+    		            ctx.lineTo(P.x + dx, -P.y + dy);
+    		        }
+    		        // Close the path and draw the face
+    		        ctx.closePath();
+    		        ctx.stroke();
+    		        ctx.fill();
+    		    }
+    		}
+		}
+
+		function mapping(V) {
+   			// Distance between the camera and the plane
+   			var d = 10;
+   			var r = d / V.y;
+   			return new Vertex2D(r * V.x, r * V.z);
+		}
+		var cube_center = new Vertex(100, 100, 100);
+    	var cube = new Cube(cube_center, 50);
+    	var objects = [cube];
+	
+    	// First render
+    	render(objects, ctx, 50, 50);
+		!(function() {
+    		var dx = canvas_W / 8;
+    		var dy = canvas_H / 8;
+		
+    		// Objects style
+    		ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+    		ctx.fillStyle = 'rgba(0, 150, 255, 0.3)';
+		
+    		// Create the cube
+    		var cube_center = new Vertex(0, 0, 11*dy/10);
+    		var cube = new Cube(cube_center, dy);
+    		var objects = [cube];
+		
+    		// First render
+    		render(objects, ctx, dx, dy);
+		
+    		// Events
+    		var mousedown = false;
+    		var mx = 0;
+    		var my = 0;
+		
+    		canvas.addEventListener('mousedown', initMove);
+    		document.addEventListener('mousemove', move);
+    		document.addEventListener('mouseup', stopMove);
+		
+    		// Rotate a vertice
+    		function rotate(M, center, theta, phi) {
+    		    // Rotation matrix coefficients
+    		    var ct = Math.cos(theta);
+    		    var st = Math.sin(theta);
+    		    var cp = Math.cos(phi);
+    		    var sp = Math.sin(phi);
+		
+    		    // Rotation
+    		    var x = M.x - center.x;
+    		    var y = M.y - center.y;
+    		    var z = M.z - center.z;
+		
+    		    M.x = ct * x - st * cp * y + st * sp * z + center.x;
+    		    M.y = st * x + ct * cp * y - ct * sp * z + center.y;
+    		    M.z = sp * y + cp * z + center.z;
+    		}
+		
+    		// Initialize the movement
+    		function initMove(evt) {
+    		    clearTimeout(autorotate_timeout);
+    		    mousedown = true;
+    		    mx = evt.clientX;
+    		    my = evt.clientY;
+    		}
+		
+    		function move(evt) {
+    		    if (mousedown) {
+    		        var theta = (evt.clientX - mx) * Math.PI / 360;
+    		        var phi = (evt.clientY - my) * Math.PI / 180;
+		
+    		        for (var i = 0; i < 8; ++i)
+    		            rotate(cube.vertices[i], cube_center, theta, phi);
+		
+    		        mx = evt.clientX;
+    		        my = evt.clientY;
+    		        render(objects, ctx, dx, dy);
+    		    }
+    		}
+		
+    		function stopMove() {
+    		    mousedown = false;
+    		    // autorotate_timeout = setTimeout(autorotate, 2000);
+    		}
+		
+    		// function autorotate() {
+    		//     for (var i = 0; i < 8; ++i)
+    		//         rotate(cube.vertices[i], cube_center, -Math.PI / 720, Math.PI / 720);
+		
+    		//     render(objects, ctx, dx, dy);
+		
+    		//     autorotate_timeout = setTimeout(autorotate, 30);
+    		// }
+    		// autorotate_timeout = setTimeout(autorotate, 2000);
+    		autorotate_timeout = setTimeout(null, 2000);
+    	});
+	}
+
+</script>
+</html>
