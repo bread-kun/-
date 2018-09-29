@@ -1,6 +1,5 @@
 !(function(w) {if (!w) return null;w.$z = new (function() {
-	// source point (0,0,0)
-	const org_p = new Vertex(0,0,0);
+	
 	var that = this;
 
 	// mapping on the canvas x^y
@@ -36,13 +35,18 @@
 		}
 		console.log("generating ball in rotating around y axis ->",t_vertices);
 		// then , all vertices rotating around z axis for (n/2 -1) times [ignore vertice whitch on the z axis]
+		let t_t_vertices = t_vertices.slice();
 		for (var i = 1; i < n/2; i++) {
-
+			for (var i = 0; i < t_t_vertices.length; i++) {
+				if (t_t_vertices[i].z === 0)
+					continue;
+				t_vertices.push(rotate(t_vertices[0], toRadians(d*i), 'z', org_p))
+			}
 		}
-		// have (n * n/2) vertices on this ball
-		for (var i = 0; i < n; i++) {
-			Things[i]
-		}
+		delete t_t_vertices;
+		console.log("generating ball in rotating around z axis ->",t_vertices)
+		return t_vertices;
+		//////////////////
 	}
 
 	// generate the cube
@@ -197,7 +201,7 @@
     		var _c = Math.cos(rotate)
     	}
     	let org_res = [];
-    	let around_point = around_point || org_p;
+    	let a_p = around_point || org_p;
     	if (axis == "x") {
     		let matrix = [[1,0,0],[0,_c,-_s],[0,_s,_c]];
     		org_res = [matrix[0][0]*target_vertex.x, matrix[1][1]*target_vertex.y + matrix[2][1]*target_vertex.y, matrix[2][1]*target_vertex.z + matrix[2][2]*target_vertex.z];
@@ -211,7 +215,7 @@
     		console.log("Error rotate axis ",axis);
     		return null;
     	}
-    	return new Vertex(org_res[0]+around_point.x, org_res[1]+around_point.y, org_res[2]+around_point.z);
+    	return new Vertex(org_res[0]+a_p.x, org_res[1]+a_p.y, org_res[2]+a_p.z);
     }
 
     function re_draw(ctx) {
@@ -225,6 +229,8 @@
 		
 		// body...
 	}
-	that.__proto__ = {Vertex2D:Vertex2D,Vertex:Vertex,Cube:Cube,draw_Axis:draw_Axis,re_draw:re_draw
+	// source point (0,0,0)
+	const org_p = new Vertex(0,0,0);
+	that.__proto__ = {Vertex2D:Vertex2D,Vertex:Vertex,Cube:Cube,draw_Axis:draw_Axis,re_draw:re_draw,Ball:Ball,t_rotate:rotate
 	}
 })()})(window)
