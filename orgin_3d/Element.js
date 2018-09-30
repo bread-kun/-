@@ -149,7 +149,7 @@
 	}
 	function mapping(V, carmera) {
 	   	// Distance between the camera and the plane
-	   	return new Vertex2D(((V.x - carmera.x)*distance/(carmera.z-V.z/3)), (canvas_H/2 - (V.y - carmera.y)*distance/(carmera.z-V.z/3)));
+	   	return new Vertex2D(((V.x*2 - carmera.x)*distance/(carmera.z-V.z/3)), (canvas_H/2 - (V.y*2 - carmera.y)*distance/(carmera.z-V.z/3)));
 	}
 
 	function render(objects, ctx, dx, dy) {
