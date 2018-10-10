@@ -472,6 +472,38 @@
         	}
         }
         var avl;
+
+        // balentree
+        function balanceTree(root,params) {
+            function tNode(val, index, parenet){
+                // this.i = index || 1;
+                this.val = val;
+                this.l = null;
+                this.r = null;
+                this.h = 0;
+            }
+            this.root = new tNode(root);
+            this.addNode = function(node, parent) {
+                if (!node)
+                    throw Error("no node");
+                let p = parent || this.root;
+                let flag = 0;
+                if (node > p.val) {
+                    // if left and right is null, then or parent height +1
+                    if (p.r === null) {
+                        flag=p.l===null?1:0;
+                    }
+                    flag = addNode(node, p.r)
+                    
+                }
+                if (p.l === p.r){
+                    flag = true;
+                    if (node > ) {}
+                }
+
+
+            };
+        }
 	</script>
 	<script>
 		function encodec(argument, bit) {
