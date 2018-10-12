@@ -488,21 +488,50 @@
                     throw Error("no node");
                 let p = parent || this.root;
                 let flag = 0;
+                ///////////////////////
+                // if left and right is null, then parent height +1
+                if (p.r===p.l && p.r===null) {
+                    node>p.val?p.r=new tNode(node):p.l=new tNode(node);
+                    p.h++;
+                    return 1;
+                }
                 if (node > p.val) {
-                    // if left and right is null, then or parent height +1
-                    if (p.r === null) {
-                        flag=p.l===null?1:0;
+                    if (p.r === null){
+                        p.r = new tNode(node);
+                        return 0;
                     }
-                    flag = addNode(node, p.r)
-                    
+                    flag = this.addNode(node, p.r);
+                    if (flag !== 0 && p.h-flag===0)
+                        p.h++;
+                        return p.h;
                 }
-                if (p.l === p.r){
-                    flag = true;
-                    if (node > ) {}
+                if (p.l === null){
+                        p.l = new tNode(node);
+                        return 0;
                 }
-
-
+                flag = this.addNode(node, p.l);
+                if (flag !== 0 && p.h-flag===0)
+                    p.h++;
+                    return p.h;
             };
+            this.check = function() {
+                function inLeft(curr){
+                    let l = curr.l;
+                    while
+                    return curr.l;
+                }
+                function inRight(curr) {
+                }
+                let isbalance = true;
+                var current = this.root;
+                let stacks = [];
+                while(!current.l){
+
+                }
+            }
+            this.rotatell = function() {
+                // body...
+            }
         }
 	</script>
 	<script>
