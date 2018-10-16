@@ -474,63 +474,138 @@
         var avl;
 
         // balentree
+        // define: 1.左右两个子树的高度差的绝对值不超过1
+        //         2.左右两个子树都是一棵平衡二叉树
+        // 使用属性决定左右子树，可以节省空间，如果使用预订好的数组，需要目标长度*4倍的长度
         function balanceTree(root,params) {
-            function tNode(val, index, parenet){
-                // this.i = index || 1;
+            function tNode(val, parenet){
                 this.val = val;
                 this.l = null;
                 this.r = null;
                 this.h = 0;
+                this.p = parent;
             }
             this.root = new tNode(root);
-            this.addNode = function(node, parent) {
-                if (!node)
-                    throw Error("no node");
-                let p = parent || this.root;
-                let flag = 0;
-                ///////////////////////
-                // if left and right is null, then parent height +1
-                if (p.r===p.l && p.r===null) {
-                    node>p.val?p.r=new tNode(node):p.l=new tNode(node);
-                    p.h++;
-                    return 1;
+            this.add = function(node,parent) {
+                function _addNode(node, parent) {
+                    if (!node)
+                        throw Error("no node");
+                    ///////////////////////
+                    let stacks = [];
+                    let _c = parent;
+                    let flag = 0;
+                    // if left and right is null, then parent height +1
+                    while(_c!==null){
+                        if (node > _c.val) {
+                            stacks.push(_c);
+                            if (_c.r===null) {
+                                if (_c.l===_c.r)
+                                    flag = 1;
+                                _c.r = new tNode(node, _c);
+                                break;
+                            } else {
+                                _c = _c.r;
+                            }
+                        }else{
+                            stacks.push(_c);
+                            if (_c.l===null) {
+                                if (_c.r===_c.l)
+                                    flag = 1;
+                                _c.l = new tNode(node, _c);
+                                break;
+                            } else {
+                                _c = _c.l;
+                            }
+                        }
+                    }
+                    if (flag) {
+                        // left and right is null, then parent +1
+                        // 
+                        for (var i = stacks.length - 1; i >= 0; i--) {
+                            try{
+                                if (stacks[i].l.h === stacks[i].r.h)
+                                    break;
+                            }catch(e){
+                            }
+                            stacks[i].h += 1;
+                        }
+                    }
                 }
-                if (node > p.val) {
-                    if (p.r === null){
-                        p.r = new tNode(node);
+                // package main function
+                let _p = parent || this.root;
+                _addNode(node, _p);
+                this.check();
+            }
+            this.check = function() {
+                var stacks = [];
+                // return is balance or not
+                function isbalance(node) {
+                    let t1 = node.l?node.l.h:-1;
+                    let t2 = node.r?node.r.h:-1;
+                    t2 -= t1;
+                    return (t2>-2 && t2 < 2);
+                }
+                function rotate(unblanceNode) {
+                    const LLEFT = -1,RRIGHT = 1, LRIGHT = 0, RLEFT = 2;
+                    var und = unblanceNode;
+                    let mode = "";
+                    mode = (und.l!==null?((und.l.l!==null)?LLEFT:LRIGHT):((und.r.l!==null)?RLEFT:RRIGHT))
+                    !function(node, mode){
+                        console.log(mode);
+                        switch(mode){
+                            case LLEFT:
+                                break;
+                            case RRIGHT:
+                                break;
+                            case LRIGHT:
+                                break;
+                            case RLEFT:
+                                break;
+                            default:
+                                throw Error("error mode with " + mode);
+                        }
+                    }(unblanceNode, mode);
+                }
+                // deal function
+                function _deal(node) {
+                    // console.log(node.val);
+                    if (!isbalance(node)){
+                        console.log("un balance node " + node.val);
                         return 0;
                     }
-                    flag = this.addNode(node, p.r);
-                    if (flag !== 0 && p.h-flag===0)
-                        p.h++;
-                        return p.h;
+                    return 1;
                 }
-                if (p.l === null){
-                        p.l = new tNode(node);
-                        return 0;
-                }
-                flag = this.addNode(node, p.l);
-                if (flag !== 0 && p.h-flag===0)
-                    p.h++;
-                    return p.h;
-            };
-            this.check = function() {
-                function inLeft(curr){
-                    let l = curr.l;
-                    while
-                    return curr.l;
-                }
-                function inRight(curr) {
-                }
-                let isbalance = true;
-                var current = this.root;
-                let stacks = [];
-                while(!current.l){
+                // Travel every node
+                function travel(curr){
+                    // current node
+                    let cn = curr;
+                    // CLR mode travel
+                    stacks.push(cn);
+                    while(stacks.length!==0){
+                        cn = stacks.pop();
+                        /////////
+                        if(!isbalance(cn))
+                            return rotate(cn);
+                        /////////
+                        if(cn.r !== null){
+                            stacks.push(cn.r);
+                        }
+                        if(cn.l !== null){
+                            stacks.push(cn.l);
+                        }
+                    }
 
                 }
+                // let isbalance = true;
+                travel(this.root);
             }
-            this.rotatell = function() {
-                // body...
+            this.tadd = function(array) {
+                // add a array, fast mode
+                if (!array instanceof Array)
+                    return "Error Array";
+                for (var i = 0; i < array.length; i++) {
+                    this.add(array[i]);
+                }
             }
         }
 	</script>
