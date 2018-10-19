@@ -6,9 +6,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=0.23, minimum-scale=0.23,user-scalable=yes">
 <title>Canvas Test</title>
-<link href="https://bread-kun.github.io/-/css/zzsc.css" rel="stylesheet" type="text/css" media="all">
-<script src="https://bread-kun.github.io/-/js/jquery-1.8.2.min.js"></script>
-<script src="https://bread-kun.github.io/-/js/zzsc.js"></script>
 	<title>My Canvas Test</title>
 	<style type="text/css">
 		* {
@@ -21,7 +18,7 @@
             margin: 100px;
             padding: 0;
             border: 0;
-            background: #fdfcf8;
+            background: #dbdad6;
             font-family: PingFangSC-Regular, Verdana, Arial, 微软雅黑, 宋体;
             font-size: 11px;
         }
@@ -40,25 +37,10 @@
 	</style>
 </head>
 <body>
-	<canvas id="tutorial" width="350" height="350"><!-- some thing in the canvas -->
+	<canvas id="tutorial" width="850" height="550"><!-- some thing in the canvas -->
 		<img src="image/gif_image.gif" width="150" height="150" alt=""/>
 	</canvas>
 	<div id="btns_1" class="btn-line">
-		<input type="button" name="draw" value="draw" onclick="draw()"/>
-		<input type="button" name="rect" value="rect" onclick="rect()"/>
-		<input type="button" name="smile" value="smile" onclick="smile()"/>
-		<input type="button" name="radiu" value="radiu" onclick="radiu()"/>
-		<input type="button" name="bezier" value="bezier" onclick="bezier()"/>
-		<input type="button" name="quadratic" value="quadratic" onclick="quadratic()"/>
-	</div>
-	<div id="btns_2" class="btn-line">
-		<input type="button" name="beaner" value="Eat-Beaner" onclick="beaner()"/>
-		<input type="button" name="path2d" value="Path2D" onclick="path2d()"/>
-		<input type="button" name="colorpad" value="ColorPad" onclick="colorpad()"/>
-		<input type="button" name="spiral" value="Spiral" onclick="spiral()"/>
-		<input type="button" name="liner" value="Liner" onclick="liner()"/>
-	</div>
-	<div id="btns_3" class="btn-line">
 		<input type="button" name="cls" value="clear" onclick="cls()"/>
 		<input type="button" name="tree" value="Tree" onclick="tree()"/>
         <input type="button" name="tree" value="AVLTree" onclick="randomAVL(12, 2, 30)"/>
@@ -71,306 +53,6 @@
         function cls() {
         	ctx.clearRect(0,0,350,350);
         	ctx = canvas.getContext('2d') || alert("no support");
-        }
-		function rect() {
-			ctx.fillStyle = "rgb(200,0,0)";
-			ctx.fillRect (10, 10, 55, 50);
-			ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
-	        ctx.fillRect (30, 30, 55, 50);
-	        ctx.fillStyle = "rgba(0, 200, 0, 0)";
-	        ctx.strokeRect (0, 25, 55, 50);
-		}
-        // ctx.clearRect(45, 45, 60, 60);
-        function draw() {
-        	ctx.clearRect(45, 45, 60, 60);
-        	ctx.fillStyle = "rgba(150, 0, 0, 0.5)";
-        	ctx.beginPath();
-        	ctx.moveTo(75, 50);
-		    ctx.lineTo(150, 75);
-		    ctx.lineTo(100, 25);
-		    ctx.lineTo(75, 50);
-		    ctx.stroke();
-		    // ctx.fill();
-		    
-        }
-        function smile() {
-        	ctx.beginPath();
-		    ctx.arc(175,175,50,0,Math.PI*2,true); // 绘制
-		    ctx.moveTo(210,175);
-		    ctx.arc(175,175,35,0,Math.PI,false);   // 口(顺时针)
-		    ctx.moveTo(165,165);
-		    ctx.arc(160,165,5,0,Math.PI*2,true);  // 左眼
-		    ctx.moveTo(195,165);
-		    ctx.arc(190,165,5,0,Math.PI*2,true);  // 右眼
-		    ctx.stroke();
-        }
-        function radiu() {
-        	ctx.beginPath();
-        	for (let _y = 35; _y < 35 + 50*4; _y += 50) {
-        		for (let _x = 35; _x < 35 + 50 * 4; _x += 50) {
-        			let _start_point = Math.random();
-        			let _end_point = Math.random()*Math.PI;
-        			ctx.moveTo(_x, _y);
-        			ctx.arc(_x, _y, radius = 20, _start_point, _end_point, true);
-        			ctx.lineTo(_x, _y);
-        			_y<= 85?ctx.fill():ctx.stroke()
-        		}
-        	}
-        }
-        // 二次贝塞尔曲线与三次贝塞尔曲线
-        function quadratic() {
-			// 绘制二次贝塞尔曲线，cp1x,cp1y为一个控制点，x,y为结束点。
-        	// quadraticCurveTo(cp1x, cp1y, x, y)
-        	ctx.beginPath();
-        	ctx.moveTo(50,50);
-			ctx.quadraticCurveTo(50,25,150,25);
-			ctx.quadraticCurveTo(200,25,200,50);
-			ctx.quadraticCurveTo(200,75,150,75);
-			ctx.quadraticCurveTo(50,75,50,50);
-			// ctx.quadraticCurveTo(25,100,50,100);
-			// ctx.quadraticCurveTo(50,120,30,125);
-			// ctx.quadraticCurveTo(60,120,65,100);
-			// ctx.quadraticCurveTo(125,100,125,62.5);
-			// ctx.quadraticCurveTo(125,25,75,25);
-			ctx.stroke();
-        }
-        function bezier() {
-        	ctx.beginPath();
-        	ctx.fillStyle = "rgba(230, 20, 55, 0.8)";
-        	// bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y)
-			// 绘制三次贝塞尔曲线，cp1x,cp1y为控制点一，cp2x,cp2y为控制点二，x,y为结束点。
-			ctx.moveTo(75,40);
-			ctx.bezierCurveTo(75,37,70,25,50,25);
-			ctx.bezierCurveTo(20,25,20,62.5,20,62.5);
-			ctx.bezierCurveTo(20,80,40,102,75,120);
-			ctx.bezierCurveTo(110,102,130,80,130,62.5);
-			ctx.bezierCurveTo(130,62.5,130,25,100,25);
-			ctx.bezierCurveTo(85,25,75,37,75,40);
-			ctx.fill();
-        }
-        function beaner() {
-        	if (ctx) {
-        		// frame rect
-        		roundedRect(ctx,12,12,200,200,20);
-				roundedRect(ctx,8,8,208,208,23);
-				// inner rect
-				roundedRect(ctx,53,53,49,33,10);
-				roundedRect(ctx,53,119,49,16,6);
-				roundedRect(ctx,135,53,49,33,10);
-				roundedRect(ctx,135,119,25,49,10);
-
-				// eatter
-				ctx.beginPath();
-				ctx.arc(37,37,13,Math.PI/7,-Math.PI/7,false);
-				ctx.lineTo(31,37);
-				ctx.fill();
-
-				// bean
-				for(var i=0;i<8;i++){
-					// no need moveTo
-					ctx.fillRect(51+i*16,35,4,4);
-					ctx.fillRect(51+i*16,99,4,4);
-				}
-
-				for(i=0;i<6;i++){
-					ctx.fillRect(115,51+i*16,4,4);
-				}
-
-				// ghost
-				ctx.fillStyle = "rgba(25, 200, 25, 0.8)";
-				ctx.beginPath();
-				ctx.moveTo(83,116);
-				ctx.lineTo(83,102);
-				ctx.bezierCurveTo(83,94,89,88,97,88);
-				ctx.bezierCurveTo(105,88,111,94,111,102);
-				ctx.lineTo(111,116);
-				ctx.lineTo(106.333,111.333);
-				ctx.lineTo(101.666,116);
-				ctx.lineTo(97,111.333);
-				ctx.lineTo(92.333,116);
-				ctx.lineTo(87.666,111.333);
-				ctx.lineTo(83,116);
-				ctx.fill();
-				// eye white
-				ctx.fillStyle = "red";
-				ctx.beginPath();
-				ctx.moveTo(91,96);
-				ctx.bezierCurveTo(88,96,87,99,87,101);
-				ctx.bezierCurveTo(87,103,88,106,91,106);
-				ctx.bezierCurveTo(94,106,95,103,95,101);
-				ctx.bezierCurveTo(95,99,94,96,91,96);
-				ctx.moveTo(103,96);
-				ctx.bezierCurveTo(100,96,99,99,99,101);
-				ctx.bezierCurveTo(99,103,100,106,103,106);
-				ctx.bezierCurveTo(106,106,107,103,107,101);
-				ctx.bezierCurveTo(107,99,106,96,103,96);
-				ctx.fill();
-				// puple
-				ctx.fillStyle = "black";
-				ctx.beginPath();
-				ctx.arc(101,102,2,0,Math.PI*2,true);
-				ctx.fill();
-
-				ctx.beginPath();
-				ctx.arc(89,102,2,0,Math.PI*2,true);
-				ctx.fill();
-
-        	}	
-			// 封装的一个用于绘制圆角矩形的函数.
-			function roundedRect(ctx,x,y,width,height,radius){
-			  ctx.beginPath();
-			  ctx.moveTo(x,y+radius);
-			  ctx.lineTo(x,y+height-radius);
-			  ctx.quadraticCurveTo(x,y+height,x+radius,y+height);
-			  ctx.lineTo(x+width-radius,y+height);
-			  ctx.quadraticCurveTo(x+width,y+height,x+width,y+height-radius);
-			  ctx.lineTo(x+width,y+radius);
-			  ctx.quadraticCurveTo(x+width,y,x+width-radius,y);
-			  ctx.lineTo(x+radius,y);
-			  ctx.quadraticCurveTo(x,y,x,y+radius);
-			  ctx.stroke();
-        	}
-        }
-        function path2d() {
-        	if (ctx) {
-        		let rectangle = new Path2D();
-        		rectangle.rect(50, 50, 50, 50);
-
-        		let circle = new Path2D();
-        		circle.moveTo(125, 150);
-        		circle.arc(100, 150, 25, 0, 2 * Math.PI);
-
-        		let svg = new Path2D("M130 50 h 80 v 80 h -80 Z");
-
-        		ctx.stroke(svg);
-        		ctx.stroke(rectangle);
-        		ctx.fill(circle);
-        	}
-        }
-        function colorpad() {
-        	if (ctx) {
-        		let size = 175;
-        		let pad = 350;
-        		for (let _i = 0; _i < size; _i++) {
-        			let _r = Math.floor((256/size)*_i);
-        			for (let _j = 0; _j < size; _j++) {
-        				let _g = Math.floor((256/size)*_j);
-
-        				// ctx.strokeStyle = "rgb(255, 255, 0)";
-        				ctx.fillStyle = "rgb("+ _r +","+ _g +", 0)";
-        				ctx.fillRect(_i*(pad/size), _j*(pad/size), (pad/size), (pad/size));
-        			}
-        		}
-        	}
-        }
-        // 自制一盘蚊香
-        function spiral() {
-        	// 最大半径
-        	var size = 150;
-        	// 圈数*2
-        	var cur = 8;
-        	// 细化程度
-        	var refine = 6;
-        	if (ctx) {
-        		ctx.lineWidth = 3;
-        		ctx.lineCap = "round";
-        		ctx.beginPath();
-        		ctx.moveTo(175+size, 175);
-        		var leve = cur*Math.PI/size/refine;
-        		for (let i = size*refine, pre = 0; i >=0; pre += leve,i--) {
-        			ctx.arc(175,175,i/refine,pre, pre+leve,false);
-        		}
-        		ctx.stroke();
-        	}
-        }
-        function liner() {
-        	
-        	
-        	if (ctx) {
-        		roundedRect(ctx, 5,5,150,150,15);
-        		roundedRect(ctx, 175,5,150,150,15);
-        		roundedRect(ctx, 5,175,150,150,15);
-        		roundedRect(ctx, 175,175,150,150,15);
-        		linewidth_t(ctx);
-
-        		lineCap_t(ctx);
-
-        		lineJoin_t(ctx);
-        	}
-
-
-        	// 线宽
-        	// ctx.lineWidth = 2;
-        	function linewidth_t(ctx){
-        		for (var i = 0; i < 10; i++){
-					ctx.lineWidth = 1+i;
-					ctx.beginPath();
-					ctx.moveTo(15+i*14,20);
-					ctx.lineTo(15+i*14,140);
-					ctx.stroke();
-				}
-        	};
-        	// 线条末端样式 {defult=butt,round,square}
-        	// ctx.lineCap = round;
-        	function lineCap_t(ctx) {
-        		var lineCap = ['butt','round','square'];
-
-        		// 创建路径
-        		ctx.strokeStyle = '#88e';
-				ctx.lineWidth = 2;
-        		ctx.beginPath();
-        		ctx.moveTo(185,20);
-        		ctx.lineTo(315,20);
-        		ctx.moveTo(185,140);
-        		ctx.lineTo(315,140);
-        		ctx.stroke();
-
-        		ctx.strokeStyle = 'black';
-				for (var i=0;i<lineCap.length;i++){
-					ctx.lineWidth = 15;
-					ctx.lineCap = lineCap[i];
-					ctx.beginPath();
-					ctx.moveTo(200+i*50,20);
-					ctx.lineTo(200+i*50,140);
-					ctx.stroke();
-				}
-        	}
-        	// lineJoin = type
-			// 设定线条与线条间接合处的样式。
-        	function lineJoin_t(ctx) {
-        		var lineJoin = ['round','bevel','miter'];
-        		ctx.miterLimit = 25;
-        		ctx.lineWidth = 10;
-        		for (var i=0;i<lineJoin.length;i++){
-        			ctx.lineJoin = lineJoin[i];
-					ctx.beginPath();
-					ctx.moveTo(20,200+i*40);
-					ctx.lineTo(50,230+i*40);
-					ctx.lineTo(80,200+i*40);
-					ctx.lineTo(110,230+i*40);
-					ctx.lineTo(140,200+i*40);
-					ctx.stroke();
-  				}
-        	}
-        	// miterLimit = value
-			// 限制当两条线相交时交接处最大长度；所谓交接处长度（斜接长度）是指线条交接处内角顶点到外角顶点的长度。
-			function mitterLimit_t(ctx) {
-				// body...
-			}
-        	// 封装的一个用于绘制圆角矩形的函数.
-			function roundedRect(ctx,x,y,width,height,radius){
-			  ctx.beginPath();
-			  ctx.moveTo(x,y+radius);
-			  ctx.lineTo(x,y+height-radius);
-			  ctx.quadraticCurveTo(x,y+height,x+radius,y+height);
-			  ctx.lineTo(x+width-radius,y+height);
-			  ctx.quadraticCurveTo(x+width,y+height,x+width,y+height-radius);
-			  ctx.lineTo(x+width,y+radius);
-			  ctx.quadraticCurveTo(x+width,y,x+width-radius,y);
-			  ctx.lineTo(x+radius,y);
-			  ctx.quadraticCurveTo(x,y,x,y+radius);
-			  ctx.stroke();
-        	}
         }
         // show a tree
         function tree(list) {
@@ -402,15 +84,14 @@
         	Node.prototype = {
         		l:-1,r:-1,k:-1,h:-1,v:-1,p:null,
         		addChild: function(node) {
-        			if (node.v > this.v) {
+        			if (node.v < this.v) {
+                        if (this.l != -1)
+                            return this.l.addChild(node);
+                        this.l = node;
+                    } else {
         				if (this.r != -1)
         					return this.r.addChild(node);
         				this.r = node;
-        			} else {
-        				if (this.l != -1)
-        					return this.l.addChild(node);
-        				this.l = node;
-        				node.p = this;
         			}
         			node.p = this;
         			let t_node = node;
@@ -428,25 +109,16 @@
         	avl = new AvlTree(ls);
         	show(avl);
         	function show(tree) {
-        		let size = 15;
+        		let size = 20;
         		let height = 20;
         		let width = 20;
-        		let m_h = 350;
-        		let m_w = 350;
+        		let m_h = 550;    // canvas height and width
+        		let m_w = 850;
         		let ce = 10;
-        		ctx.font = 'bold '+ size +'px Calibri';
+        		ctx.font = 'bold '+ size/2 +'px Calibri';
       			ctx.fillStyle = "black";
         		ctx.beginPath();
         		var c_node = tree.root;
-        		// while(c_node != -1){
-        		// 	let _x = m_w;
-        		// }
-        		// ctx.arc(m_w/2,ce + size/2,size/2,0,Math.PI*2,true);
-        		// ctx.fillText(ls[0], m_w/2 - size/2 + size/4, ce + size/2 + size/4);
-        		// ctx.moveTo(m_w/2 - size/2,ce + size); // left
-        		// ctx.lineTo(m_w/2 - size, ce + size + size/2);
-        		// ctx.moveTo(m_w/2,ce + size/2); // right
-        		// ctx.lineTo()
         		writeNode(ctx, tree.root, m_w/2, ce + size/2);
         		ctx.stroke();
         		function writeNode(ctx, node, c_x, c_y, des="root", angle = Math.PI/6, level = 1.5) {
@@ -460,7 +132,7 @@
         			if (des === "right")
         				ctx.arc(c_x, c_y, _r, -3*Math.PI/4, -3*Math.PI/4+0.01, true);
                     // write inner text
-        			ctx.fillText(node.v, c_x - _r/2, c_y + _r/2);
+        			ctx.fillText(node.v, c_x - _r/2, c_y + _r/3);
         			if (node.l != -1) {
         				ctx.moveTo(c_x - _sqr_x, c_y + _sqr_y);
         				ctx.lineTo(c_x - (3+level)*_sqr_x, c_y + (3+level)*_sqr_y);
@@ -556,28 +228,7 @@
                         throw Error("Error on left node equal right node, parent node --> "+ node.val)
                     return res
                 }
-                // 0: left smaller ; 1:right smaller;
-                // check son with bigger height
-                // //////////////////////////////////
-                // if (modecheck(und)){
-                //     // last rotate right
-                //     if (modecheck(und.l)){
-                //         // first rotate right
-                //         rotate_mode = RRIGHT;
-                //     } else {
-                //         rotate_mode = LRIGHT;
-                //     }
-                // } else {
-                //     // last rotate left
-                //     if (modecheck(und.r)){
-                //         // first rotate right
-                //         rotate_mode = RLEFT;
-                //     } else {
-                //         rotate_mode = LLEFT;
-                //     }
-                // }
-                // /////////////////////////////////
-                // simplify ==||
+                // check son with bigger height and simplify ==||
                 let rotate_mode = modecheck(und)?(modecheck(und.l)?RRIGHT:LRIGHT):(modecheck(und.r)?RLEFT:LLEFT);
                 // #log
                 {
@@ -796,25 +447,6 @@
                 }, 800);
             }, time*1000);
         }
-	</script>
-	<script>
-		function encodec(argument, bit) {
-			let _hex_s = encodeURIComponent(argument).replace(new RegExp("%",'g'), "");
-			let _hex = parseInt(_hex_s, 16);
-			var target = "";
-			if (bit===2 && _hex_s.length > 13) {
-				let _bit_s = "";
-				for (let i = 0; i < _hex_s/13; i++) {
-					_bit_s = parseInt(_hex_s.substr(i*13,(i+1)*13-1)).toString(bit);
-					target.concat(_bit_s);
-				}
-				_bit_s = parseInt(_hex_s.substr(_hex_s.length - _hex_s.length%13, _hex_s.length-1)).toString(bit);
-				target.concat(_bit_s);
-				return target;
-			}
-			let t = _hex.toString(bit);
-			return _hex.toString(bit);
-		}
 	</script>
 </body>
 </html>
