@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>A* Test</title>
+</head>
+<script type="text/javascript">
+// format string
+// First, checks if it isn't implemented yet.
+if (!String.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) { 
+      return typeof args[number] != 'undefined'? args[number]: match
+      ;
+    });
+  };
+}
+</script>
+<style type="text/css">
+		* {margin: 0;padding: 0;border: 0;}body{text-align: center;margin: 100px;padding: 0;border: 0;background: #fdfcf8;font-family: PingFangSC-Regular, Verdana, Arial, 微软雅黑, 宋体;font-size: 11px;}input[type=button]{width: 75px;height: 25px;background: #1cdede;color: #fff;}#canvas{background: #e2e2e2;}.btn-line{margin: 5px 0;}
+</style>
+<body>
+	<canvas id="canvas"><!-- some thing in the canvas -->
+		<img src="image/gif_image.gif" width="150" height="150" alt=""/>
+	</canvas>
+	<div id="btns_1" class="btn-line">
+		<input type="button" name="draw" value="Dijkstra" onclick="Dijkstra()"/>
+	</div>
+	<div id="btns_3" class="btn-line">
+		<input type="button" name="cls" value="clear" onclick="cls()"/>
+		<input type="button" name="deepCLS" value="deepClear" onclick="deepCLS()">
+	</div>
+</body>
+<script type="text/javascript">
+	"use strict"
+	// init canvas
+	var HEIGHT = 500;
+	var WIDTH = 500;
+	var size = 40;
+	var padding = 5;
+	var canvas,ctx;
+	var nmap = [];
+	!function(cvs) {
+		canvas = cvs;
+		canvas.height = HEIGHT;
+		canvas.width = WIDTH;
+		// init map
+		for (var i = 0; i < HEIGHT/(size+2*padding); i++)
+			nmap.push(new Array(WIDTH/(size+2*padding)))
+		for (var i = 0; i < HEIGHT/(size+2*padding); i++){
+			for (var j = i; j < WIDTH/(size+2*padding); j++) {
+				nmap[i][j] = (i===j)?0:nmap[j][i] = 0;
+			}
+		}
+		ctx = canvas.getContext('2d') || alert("no support");
+	}(document.getElementById('canvas'));
+
+    function cls() {
+    	ctx.clearRect(0,0,HEIGHT,HEIGHT);
+    	ctx = canvas.getContext('2d') || alert("no support");
+    }
+    function Maps(argument) {
+    	function drawer(x,y) {
+    		cls();
+    		if (arguments.length===0) {
+    			x = -1,y=-1;
+    		}
+	    	if (ctx) {
+	    		for (var i = padding; i < HEIGHT; i+=(size+padding)) {
+	    			for (var j = padding; j < WIDTH; j+=(size+padding)) {
+	    				if (i<=x && j<=y && i+size>=x && j+size>=x) {
+	    					roundedRect(ctx, i-padding,j-padding,size+2*padding,size+2*padding, 15, "stroke");
+	    					continue;
+	    				}
+	    				roundedRect(ctx, i,j,size,size, 15, "fill");
+	    			}
+	    		}
+	    	}
+    	}
+    	drawer();
+    	ctx.canvas.addEventListener('mousemove', function(e) {
+    		var ex,ey;
+    		console.log(e.clientX,e.clientY);
+    		// body have margin 100px
+			// ex = e.clientX - (window.innerWidth - WIDTH)/2 - 100;
+			ex = e.clientX - 100;
+			ey = e.clientY - 100;
+			drawer(ex,ey);
+    	})
+    	// 封装的一个用于绘制圆角矩形的函数.
+		function roundedRect(ctx,x,y,width,height,radius, type, fillStyle){
+			ctx.fillStyle = fillStyle || '#a4de1c';
+			ctx.beginPath();
+			ctx.moveTo(x,y+radius);
+			ctx.lineTo(x,y+height-radius);
+			ctx.quadraticCurveTo(x,y+height,x+radius,y+height);
+			ctx.lineTo(x+width-radius,y+height);
+			ctx.quadraticCurveTo(x+width,y+height,x+width,y+height-radius);
+			ctx.lineTo(x+width,y+radius);
+			ctx.quadraticCurveTo(x+width,y,x+width-radius,y);
+			ctx.lineTo(x+radius,y);
+			ctx.quadraticCurveTo(x,y,x,y+radius);
+			type==="fill"?ctx.fill():ctx.stroke();
+        }
+    }
+    function drawMap(argument) {
+    	var innerBox = {size: 20, color: "#de1c3e", overcolor: "#6d0e1f"}
+    }
+	function Dijkstra(map, src, dct) {
+		var SRC = -9,DCT = -8,BLOCK = -7, PASS = -6, POPED = -5, None = 0;
+		var map_width = map[0].length, map_heigth = map.length;
+		// set src,dct p
+		if (!(src instanceof Array) || src.length < 2)
+			throw Error("Error param with src")
+		if (!(dct instanceof Array) || dct.length < 2)
+			throw Error("Error param with dct")
+		if (map[src[0]][src[1]] !== 0)
+			throw Error(String.format("point({0}) is not null",src))
+		if (map[dct[0]][dct[1]] !== 0)
+			throw Error(String.format("point({0}) is not null",dct))
+		// init block
+		{
+			this.map = map;
+			this.src = src;
+			this.dct = dct;
+		}
+		map[src[0]][src[1]] = SRC;
+		map[dct[0]][dct[1]] = DCT;
+		// path map save to value [min_val, [parent_v]]
+		this.search = function(map, src, dct) {
+			if (arguments.length<1) {
+				map = this.map,src = this.src, dct = this.dct;
+			}
+			// 斜角点 val + 14[10* sqrt(2)]
+			function isBevel(ty, tx) {
+				return _ty*_ty+_tx*_tx===2;
+			}
+			// 修改 path_save 数值
+			function setValue(y, x, ty, tx) {
+				path_save[y+_ty][x+_tx] = isBevel(_ty, _tx)?[path_save[y][x][0]+14, [y,x]]:[path_save[y][x][0]+10,[y,x]]
+			}
+			// path for search, path_save for save path info and value
+			var path = map;
+			var path_save = [];
+			for (var i = 0; i < path.length; i++) {
+				path_save.push(path[i].slice())
+			}
+			// var y = src[0],x = src[1];
+			// stack vailable point
+			var stack = [src];
+			var _t,y,x;
+			path_save[src[0]][src[1]] = [0,null];
+			while(stack.length>0){
+				_t = stack.pop();
+				y = _t[0],x = _t[1];
+				for (var _ty = -1; _ty <=1; _ty++) {
+					for (var _tx = -1; _tx <=1; _tx++) {
+						// out range
+						if (y+_ty<0 || y+_ty >= map.length || x+_tx < 0 || x+_tx >= map[0].length)
+							continue;
+						if (_ty===0 && _tx===0){
+							path[y+_ty][x+_tx] = POPED;
+							continue;
+						}
+						if (path[y+_ty][x+_tx]===BLOCK || path[y+_ty][x+_tx]===POPED || path[y+_ty][x+_tx]===SRC)
+							continue;
+						try{
+							// have not searched
+							if (path[y+_ty][x+_tx]===None){
+								stack.push([y+_ty,x+_tx]);
+								// 绝对值之和为2的为斜角点
+								setValue(y,x,_ty,_tx);
+								path[y+_ty][x+_tx] = PASS;
+							// have search
+							} else if (path[y+_ty][x+_tx]===PASS) {
+								// find the sortest
+								// 单路径
+								if (isBevel(_ty, _tx)) {
+									(path_save[y][x][0]+14 < path_save[y+_ty][x+_tx][0])?setValue(y,x,_ty,_tx):null;
+								} else {
+									(path_save[y][x][0]+10 < path_save[y+_ty][x+_tx][0])?setValue(y,x,_ty,_tx):null;
+								}
+							// 或许需要更仔细点，但是这里直接选择完成吧
+							// [未实现]仔细一点的做法：判断 DCT 四周的点是否都已经 PASS
+							} else if (path[y+_ty][x+_tx]===DCT) {
+								stack.push([y+_ty,x+_tx]);
+								// 绝对值之和为2的为斜角点
+								setValue(y,x,_ty,_tx);
+								y = y+_ty, x = x+_tx;
+								var finalv = path_save[y][x][0];
+								var road = [];
+								var pr_y,pr_x;
+								while(y!==src[0] && x!==src[1]) {
+									road.push([y,x])
+									pr_y = y,pr_x = x;
+									y = path_save[pr_y][pr_x][1][0];
+									x = path_save[pr_y][pr_x][1][1];
+								}
+								road.push([y,x]);
+								// ##log
+								{
+									console.log("finish find road with value : " + finalv);
+									console.log(" road ===> " + road);
+								}
+								return road;
+							} else {
+								throw Error("!!!unknow path "+[y+_ty,x+_tx]+" info!!!")
+							}
+						}catch(e){
+							// ##log
+							if (y+_ty<0 || y+_ty >= 35 || x+_tx < 0 || x+_tx >= 35) {
+								console.log("out range -- "+[y+_ty,x+_tx]);
+								continue;
+							}
+							console.log([y,x,0,_ty,_tx]);
+							console.log(path_save);
+							throw e;
+						}
+					}
+				}
+			}
+		}
+		this.setBlock = function(y,x) {
+			// 批量处理
+			if (arguments.length===1 && (y instanceof Array)) {
+				// block_list
+				var blt = y;
+				for (var i = 0; i < blt.length; i++)
+					this.map[blt[i][0]][blt[i][1]] = BLOCK;
+			}
+			this.map[y][x] = BLOCK;
+		}
+	}
+</script>
+</html>
