@@ -18,13 +18,19 @@ if (!String.format) {
 </script>
 <style type="text/css">
 		* {margin: 0;padding: 0;border: 0;}body{text-align: center;margin: 100px;padding: 0;border: 0;background: #fdfcf8;font-family: PingFangSC-Regular, Verdana, Arial, 微软雅黑, 宋体;font-size: 11px;}input[type=button]{width: 75px;height: 25px;background: #1cdede;color: #fff;}#canvas{background: #e2e2e2;}.btn-line{margin: 5px 0;}
+		#mapbtn{width: 120px;height: 28px;position: absolute;top: 72px;}#mapbtn>.btn{width: 30px; height: 25px;margin: 2px; border-radius: 15px;}#mapbtn>.btn:hover{width: 26px; height: 20px;margin: 4px}
 </style>
 <body>
 	<canvas id="canvas"><!-- some thing in the canvas -->
 		<img src="image/gif_image.gif" width="150" height="150" alt=""/>
 	</canvas>
+	<div id="mapbtn">
+		<input class="btn" style="background: red" type="button" name="src" value="src" onclick="MapDrawer.setEvent(this.value)" />
+		<input class="btn" style="background: black"  type="button" name="blk" value="blk" onclick="MapDrawer.setEvent(this.value)" />
+		<input class="btn" style="background: green" type="button" name="dct" value="dct" onclick="MapDrawer.setEvent(this.value)" />
+	</div>
 	<div id="btns_1" class="btn-line">
-		<input type="button" name="draw" value="Dijkstra" onclick="Dijkstra()"/>
+		<input type="button" name="draw" value="Dijkstra" onclick="DijkstraSearch()"/>
 	</div>
 	<div id="btns_3" class="btn-line">
 		<input type="button" name="cls" value="clear" onclick="cls()"/>
@@ -36,60 +42,186 @@ if (!String.format) {
 	// init canvas
 	var HEIGHT = 500;
 	var WIDTH = 500;
-	var size = 40;
-	var padding = 5;
+	var size = 10;
+	// padding = size/10
+	var padrate = 0.1;
+	// var padding = 5;
 	var canvas,ctx;
 	var nmap = [];
+	var SRC = -9,DCT = -8,BLOCK = -7, PASS = -6, POPED = -5, None = 0;
+
 	!function(cvs) {
 		canvas = cvs;
 		canvas.height = HEIGHT;
 		canvas.width = WIDTH;
 		// init map
-		for (var i = 0; i < HEIGHT/(size+2*padding); i++)
-			nmap.push(new Array(WIDTH/(size+2*padding)))
-		for (var i = 0; i < HEIGHT/(size+2*padding); i++){
-			for (var j = i; j < WIDTH/(size+2*padding); j++) {
+		for (var i = 0; i < Math.floor(HEIGHT/size); i++)
+			nmap.push(new Array(Math.floor(WIDTH/size)))
+		for (var i = 0; i < Math.floor(HEIGHT/size); i++){
+			for (var j = i; j < Math.floor(WIDTH/size); j++) {
 				nmap[i][j] = (i===j)?0:nmap[j][i] = 0;
 			}
 		}
 		ctx = canvas.getContext('2d') || alert("no support");
+    	
 	}(document.getElementById('canvas'));
 
     function cls() {
     	ctx.clearRect(0,0,HEIGHT,HEIGHT);
     	ctx = canvas.getContext('2d') || alert("no support");
     }
-    function Maps(argument) {
-    	function drawer(x,y) {
+    
+    // main in drawer , algorithm could have more
+    function MapDrawer(maps) {
+    	var that = this;
+    	var map = maps || nmap;
+    	// box radius = size/10
+    	var radius = size/10;
+    	var fillStyle = {
+    						block : "#c17f18",
+    						src : "#da431f",
+    						dct : "#1f71da",
+    						poped : "#b26ee4",
+    						passed : "#d0c2c2",
+    						road : "#29dbf9"
+    					}
+    	// index to position
+    	function __idx2pos(x,y) {
+    		return {x:x*size, y:y*size}
+    	}
+    	// position to index
+    	function __pos2idx(x,y) {
+    		// first i and j
+    		return {j:Math.floor(x/size), i:Math.floor(y/size)}
+    	}
+    	function __isMouseOn(pos, eventX, eventY) {
+    		return (pos.y<eventY && pos.x<eventX && pos.y+size>eventY && pos.x+size>eventX)
+    	}
+    	this.draw = function(ex,ey) {
     		cls();
-    		if (arguments.length===0) {
-    			x = -1,y=-1;
+    		if (arguments.length===0){
+    			ex = -1,ey=-1;
     		}
 	    	if (ctx) {
-	    		for (var i = padding; i < HEIGHT; i+=(size+padding)) {
-	    			for (var j = padding; j < WIDTH; j+=(size+padding)) {
-	    				if (i<=x && j<=y && i+size>=x && j+size>=x) {
-	    					roundedRect(ctx, i-padding,j-padding,size+2*padding,size+2*padding, 15, "stroke");
+	    		var pos,style;
+	    		for (var _y = 0; _y < map.length; _y++) {
+	    			for (var _x = 0; _x < map[0].length; _x++) {
+	    				pos = __idx2pos(_x,_y);
+	    				// normal box 
+	    				if (map[_y][_x]===None) {
+	    					roundedRect(ctx, pos.x+size*padrate/2,pos.y+size*padrate/2,size*(1-padrate),size*(1-padrate), radius, "fill");
 	    					continue;
 	    				}
-	    				roundedRect(ctx, i,j,size,size, 15, "fill");
+	    				style = map[_y][_x]===BLOCK?fillStyle.block:(map[_y][_x]===SRC?fillStyle.src:(map[_y][_x]===DCT?fillStyle.dct:(map[_y][_x]===POPED?fillStyle.poped:(map[_y][_x]===PASS?fillStyle.passed:undefined))));
+	    				roundedRect(ctx, pos.x+size*padrate/2,pos.y+size*padrate/2,size*(1-padrate),size*(1-padrate), radius, "fill", style);
+	    			}
+	    		}
+	    		if (this.roadlist)
+	    			this.road(this.roadlist)
+	    		// mouse foucs on
+	    		var t_i = __pos2idx(ex,ey);
+	    		t_i = __idx2pos(t_i.j,t_i.i);
+	    		roundedRect(ctx, t_i.x,t_i.y,size,size, radius, "stroke");
+	    	}
+    	}
+    	this.road = function(roadlist){
+    		if (ctx && roadlist.length > 1) {
+    			this.roadlist = roadlist;
+    			ctx.fillStylle = "black";
+    			ctx.beginPath();
+    			ctx.moveTo((roadlist[0][1]+0.5)*size,(roadlist[0][0]+0.5)*size);
+    			for (var i = 1; i < roadlist.length; i+=1) {
+    				ctx.lineTo((roadlist[i][1]+0.5)*size,(roadlist[i][0]+0.5)*size);
+    			}
+    			ctx.stroke();
+    		}
+    	}
+    	this.setBlock = function(ex,ey) {
+    		if (arguments.length===0)
+    			return;
+	    	if (ctx) {
+	    		var idx = __pos2idx(ex,ey);
+	    		// mouse foucs on
+	    		if (map[idx.i][idx.j] === None)
+	    			map[idx.i][idx.j] = BLOCK;
+	    		this.draw(ex,ey);
+	    	}
+    	}
+    	this.setSrc = function(e){
+    		// limit one src point
+    		for (var _y = 0; _y < map.length; _y++) {
+	    		for (var _x = 0; _x < map[0].length; _x++) {
+	    			if (map[_y][_x] === SRC){
+	    				console.log("Src have been setted");
+	    				return;
 	    			}
 	    		}
 	    	}
+	    	var idx = __pos2idx(e.layerX,e.layerY);
+	    	console.log();
+	    	map[idx.i][idx.j] = SRC;
+	    	that.srcp = idx;
     	}
-    	drawer();
-    	ctx.canvas.addEventListener('mousemove', function(e) {
-    		var ex,ey;
-    		console.log(e.clientX,e.clientY);
-    		// body have margin 100px
-			// ex = e.clientX - (window.innerWidth - WIDTH)/2 - 100;
-			ex = e.clientX - 100;
-			ey = e.clientY - 100;
-			drawer(ex,ey);
-    	})
+    	this.setDct = function(e){
+    		// limit one dct point
+    		for (var _y = 0; _y < map.length; _y++) {
+	    		for (var _x = 0; _x < map[0].length; _x++) {
+	    			if (map[_y][_x] === DCT){
+	    				console.log("DCT have been setted");
+	    				return;
+	    			}
+	    		}
+	    	}
+	    	var idx = __pos2idx(e.layerX,e.layerY);
+	    	map[idx.i][idx.j] = DCT;
+	    	that.dctp = idx;
+    	}
+    	this.setEvent = function(val){
+    		function clearClickListener(listeners){
+	    		if (ctx) {
+	    			if (drawer) {
+	    				for (var i = 0; i < arguments.length; i++)
+							ctx.canvas.removeEventListener("click",arguments[i]);
+	    			}
+	    		}
+    		}
+    		clearClickListener(this.setSrc,this.setDct);
+    		if (val === btn_flag)
+    			return;
+    		switch(val){
+    			case "src":
+    				ctx.canvas.addEventListener("click",this.setSrc);
+    				break;
+    			case "dct":
+    				ctx.canvas.addEventListener("click",this.setDct);
+    				break;
+    			default:
+    				throw Error("Error with no param(value) to listener");
+    		}
+    		btn_flag = val;
+    	}
+    	var click_flag = 0;
+    	var btn_flag = 0;
+
+    	this.init = function(){
+    		
+    		var srcf = drawer.setSrc;
+    		var dctf = drawer.setDct;
+    		// have no 
+    		if (btn_flag) {}
+	    	ctx.canvas.addEventListener('mousemove', function(e) {
+		    	// change to canvas's coordinate
+	    		click_flag?that.setBlock(e.layerX,e.layerY):that.draw(e.layerX,e.layerY);
+	    	});
+	    	ctx.canvas.addEventListener('mousedown', function(e){click_flag=1;});
+	    	ctx.canvas.addEventListener('mouseup', function(){click_flag=0});
+	    	return this;
+    	}
+
     	// 封装的一个用于绘制圆角矩形的函数.
 		function roundedRect(ctx,x,y,width,height,radius, type, fillStyle){
 			ctx.fillStyle = fillStyle || '#a4de1c';
+			ctx.strokeStyle = "black";
 			ctx.beginPath();
 			ctx.moveTo(x,y+radius);
 			ctx.lineTo(x,y+height-radius);
@@ -103,29 +235,36 @@ if (!String.format) {
 			type==="fill"?ctx.fill():ctx.stroke();
         }
     }
-    function drawMap(argument) {
-    	var innerBox = {size: 20, color: "#de1c3e", overcolor: "#6d0e1f"}
+    // MapDrawer entity as drawer
+    var drawer = new MapDrawer(nmap);
+    drawer.init().draw();
+    // for set src,block,and decrection point listener
+    MapDrawer.setEvent = function(val) {
+    	if (drawer){
+    		drawer.setEvent(val);
+    		return;
+    	}
+    	console.log("== MapDrawer have not entity ==");
     }
 	function Dijkstra(map, src, dct) {
-		var SRC = -9,DCT = -8,BLOCK = -7, PASS = -6, POPED = -5, None = 0;
-		var map_width = map[0].length, map_heigth = map.length;
+		// var map_width = map[0].length, map_heigth = map.length;
 		// set src,dct p
 		if (!(src instanceof Array) || src.length < 2)
 			throw Error("Error param with src")
 		if (!(dct instanceof Array) || dct.length < 2)
 			throw Error("Error param with dct")
-		if (map[src[0]][src[1]] !== 0)
-			throw Error(String.format("point({0}) is not null",src))
-		if (map[dct[0]][dct[1]] !== 0)
-			throw Error(String.format("point({0}) is not null",dct))
+		// if (map[src[0]][src[1]] !== 0)
+		// 	throw Error(String.format("point({0}) is not null",src))
+		// if (map[dct[0]][dct[1]] !== 0)
+		// 	throw Error(String.format("point({0}) is not null",dct))
 		// init block
 		{
-			this.map = map;
+			this.map = map || nmap;
 			this.src = src;
 			this.dct = dct;
 		}
-		map[src[0]][src[1]] = SRC;
-		map[dct[0]][dct[1]] = DCT;
+		// map[src[0]][src[1]] = SRC;
+		// map[dct[0]][dct[1]] = DCT;
 		// path map save to value [min_val, [parent_v]]
 		this.search = function(map, src, dct) {
 			if (arguments.length<1) {
@@ -141,68 +280,59 @@ if (!String.format) {
 			}
 			// path for search, path_save for save path info and value
 			var path = map;
+			// path_save ==> save [15(value), [1,2](sorted parent point)]
 			var path_save = [];
+			// init path_save, a copy of map
 			for (var i = 0; i < path.length; i++) {
 				path_save.push(path[i].slice())
 			}
+			path_save[src[0]][src[1]] = [0,null];
 			// var y = src[0],x = src[1];
 			// stack vailable point
 			var stack = [src];
 			var _t,y,x;
-			path_save[src[0]][src[1]] = [0,null];
+			// 使用广度遍历搜索
 			while(stack.length>0){
-				_t = stack.pop();
+				_t = stack.shift();
 				y = _t[0],x = _t[1];
+				if (path[y][x]===POPED)
+					continue;
+				(path[y][x]===SRC || path[y][x] === DCT)?null:path[y][x] = POPED;
 				for (var _ty = -1; _ty <=1; _ty++) {
 					for (var _tx = -1; _tx <=1; _tx++) {
+						// drawer.draw();
 						// out range
 						if (y+_ty<0 || y+_ty >= map.length || x+_tx < 0 || x+_tx >= map[0].length)
 							continue;
-						if (_ty===0 && _tx===0){
-							path[y+_ty][x+_tx] = POPED;
+						// current node
+						if (_ty===0 && _tx===0)
 							continue;
-						}
-						if (path[y+_ty][x+_tx]===BLOCK || path[y+_ty][x+_tx]===POPED || path[y+_ty][x+_tx]===SRC)
+						if (path[y+_ty][x+_tx]===BLOCK || path[y+_ty][x+_tx]===SRC)
 							continue;
 						try{
 							// have not searched
 							if (path[y+_ty][x+_tx]===None){
 								stack.push([y+_ty,x+_tx]);
-								// 绝对值之和为2的为斜角点
+								// _tx,_ty 绝对值之和为2的为斜角点
 								setValue(y,x,_ty,_tx);
 								path[y+_ty][x+_tx] = PASS;
 							// have search
-							} else if (path[y+_ty][x+_tx]===PASS) {
+							} else if (path[y+_ty][x+_tx]===PASS || path[y+_ty][x+_tx]===POPED) {
 								// find the sortest
 								// 单路径
-								if (isBevel(_ty, _tx)) {
-									(path_save[y][x][0]+14 < path_save[y+_ty][x+_tx][0])?setValue(y,x,_ty,_tx):null;
-								} else {
-									(path_save[y][x][0]+10 < path_save[y+_ty][x+_tx][0])?setValue(y,x,_ty,_tx):null;
-								}
-							// 或许需要更仔细点，但是这里直接选择完成吧
-							// [未实现]仔细一点的做法：判断 DCT 四周的点是否都已经 PASS
+								(path_save[y][x][0]+10 < path_save[y+_ty][x+_tx][0])||(path_save[y][x][0]+14 < path_save[y+_ty][x+_tx][0])?setValue(y,x,_ty,_tx):null;
 							} else if (path[y+_ty][x+_tx]===DCT) {
-								stack.push([y+_ty,x+_tx]);
-								// 绝对值之和为2的为斜角点
-								setValue(y,x,_ty,_tx);
-								y = y+_ty, x = x+_tx;
-								var finalv = path_save[y][x][0];
-								var road = [];
-								var pr_y,pr_x;
-								while(y!==src[0] && x!==src[1]) {
-									road.push([y,x])
-									pr_y = y,pr_x = x;
-									y = path_save[pr_y][pr_x][1][0];
-									x = path_save[pr_y][pr_x][1][1];
+								// first searched
+								if (path_save[y+_ty][x+_tx]===DCT){
+									setValue(y,x,_ty,_tx);
+								} else{
+									// 周围节点均已poped
+									for (var i = 0; i < Things.length; i++) {
+										Things[i]
+									}
+									(path_save[y][x][0]+10 < path_save[y+_ty][x+_tx][0])||(path_save[y][x][0]+14 < path_save[y+_ty][x+_tx][0])?setValue(y,x,_ty,_tx):null;
 								}
-								road.push([y,x]);
-								// ##log
-								{
-									console.log("finish find road with value : " + finalv);
-									console.log(" road ===> " + road);
-								}
-								return road;
+									continue;
 							} else {
 								throw Error("!!!unknow path "+[y+_ty,x+_tx]+" info!!!")
 							}
@@ -219,17 +349,39 @@ if (!String.format) {
 					}
 				}
 			}
-		}
-		this.setBlock = function(y,x) {
-			// 批量处理
-			if (arguments.length===1 && (y instanceof Array)) {
-				// block_list
-				var blt = y;
-				for (var i = 0; i < blt.length; i++)
-					this.map[blt[i][0]][blt[i][1]] = BLOCK;
+			////
+			y = dct[0],x = dct[1];
+			if (path_save[y][x]===DCT) {
+				alert("目标不可达！");
 			}
-			this.map[y][x] = BLOCK;
+			var pr_y,pr_x;
+			var finalv = path_save[y][x][0];
+			var road = [];
+			while(path[y][x]!==SRC){
+				road.push([y,x]);
+				pr_y = y,pr_x = x;
+				y = path_save[pr_y][pr_x][1][0];
+				x = path_save[pr_y][pr_x][1][1];
+			}
+			road.push([y,x]);
+			// ##log
+			{
+				console.log("finish find road with value : " + finalv);
+				console.log(" road ===> " + road);
+			}
+			return road;
 		}
+	}
+	var t;
+	// var Dijkstra = new Dijkstra(nmap, [1,2], [2,4]);
+	function DijkstraSearch(){
+		// Dijkstra.drawer.init().draw();
+		console.log()
+		var d = new Dijkstra(nmap, [drawer.srcp.i,drawer.srcp.j], [drawer.dctp.i, drawer.dctp.j]);
+		var road = d.search();
+		t = road;
+		drawer.draw();
+		drawer.road(road);
 	}
 </script>
 </html>

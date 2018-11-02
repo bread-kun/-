@@ -1,27 +1,31 @@
+"use strict"
 !(function(w) {if (!w) return null;w.$z = new (function() {
-	
+	const HORIZONTAL = 0;
+	const VERTICAL = 1;
 	var that = this;
 
-	// mapping on the canvas x^y
+	// @description		2D zoom base vertex
+	// @param	x,y 	x,y value of a point in canvas
 	var Vertex2D = function(x, y) {
 	   	this.x = parseFloat(x);
 	   	this.y = parseFloat(y);
 	};
 
-	// defind base node type
+	// @description		3D zoom base vertex
+	// @param	x,y,z   x,y,z value of a point in zoom
 	var Vertex = function (x,y,z) {
 		this.x = parseFloat(x);
 		this.y = parseFloat(y);
 		this.z = parseFloat(z);
-		this.say = function() {
+		this.toString = function() {
 			return "(" + this.x + "," + this.y + "," + this.z + ")";
 		}
 	}
 
-	// draw a Positive polyhedron
-	// @param n  more n more like ball
-	//		  radius	radius
-	// 		  center_point
+	// @description 	draw a Positive polyhedron
+	// @param	  n 	more n more like ball
+	//		 radius		radius
+	// 		 center_point	center point of target object
 	var Ball = function (n, radius, center_point) {
 		function MyBall(vertices,faces) {
 			this.vertices = vertices;
@@ -102,56 +106,74 @@
 		return new MyBall(t_vertices,faces);
 	}
 
-	// generate the cube
-	var Cube = function(center_point, size) {
-		let d = size / 2;
-		this.vertices = [
-			new Vertex(center_point.x - d, center_point.y - d, center_point.y + d),
-			new Vertex(center_point.x + d, center_point.y - d, center_point.y + d),
-			new Vertex(center_point.x - d, center_point.y + d, center_point.y + d),
-			new Vertex(center_point.x + d, center_point.y + d, center_point.y + d),
-			new Vertex(center_point.x - d, center_point.y + d, center_point.y - d),
-			new Vertex(center_point.x + d, center_point.y + d, center_point.y - d),
-			new Vertex(center_point.x - d, center_point.y - d, center_point.y - d),
-			new Vertex(center_point.x + d, center_point.y - d, center_point.y - d),
-		];
-		// Generate the faces
-	   	this.faces = [
-	   	    [this.vertices[0], this.vertices[1], this.vertices[3], this.vertices[2]],
-	   	    [this.vertices[2], this.vertices[3], this.vertices[5], this.vertices[4]],
-	   	    [this.vertices[0], this.vertices[2], this.vertices[4], this.vertices[6]],
-	   	    [this.vertices[1], this.vertices[3], this.vertices[5], this.vertices[7]],
-	   	    [this.vertices[0], this.vertices[1], this.vertices[7], this.vertices[6]],
-	   	    [this.vertices[4], this.vertices[5], this.vertices[7], this.vertices[6]]
-	   	];
-	}
-	// @param degree	degree
-	// @return radian  input a number of degree and return a radian
+	// // generate the cube
+	// var Cube = function(center_point, size) {
+	// 	let d = size / 2;
+	// 	this.vertices = [
+	// 		new Vertex(center_point.x - d, center_point.y - d, center_point.y + d),
+	// 		new Vertex(center_point.x + d, center_point.y - d, center_point.y + d),
+	// 		new Vertex(center_point.x - d, center_point.y + d, center_point.y + d),
+	// 		new Vertex(center_point.x + d, center_point.y + d, center_point.y + d),
+	// 		new Vertex(center_point.x - d, center_point.y + d, center_point.y - d),
+	// 		new Vertex(center_point.x + d, center_point.y + d, center_point.y - d),
+	// 		new Vertex(center_point.x - d, center_point.y - d, center_point.y - d),
+	// 		new Vertex(center_point.x + d, center_point.y - d, center_point.y - d),
+	// 	];
+	// 	// Generate the faces
+	//    	this.faces = [
+	//    	    [this.vertices[0], this.vertices[1], this.vertices[3], this.vertices[2]],
+	//    	    [this.vertices[2], this.vertices[3], this.vertices[5], this.vertices[4]],
+	//    	    [this.vertices[0], this.vertices[2], this.vertices[4], this.vertices[6]],
+	//    	    [this.vertices[1], this.vertices[3], this.vertices[5], this.vertices[7]],
+	//    	    [this.vertices[0], this.vertices[1], this.vertices[7], this.vertices[6]],
+	//    	    [this.vertices[4], this.vertices[5], this.vertices[7], this.vertices[6]]
+	//    	];
+	// }
+
+	// @description		change a angle to arc(radian)
+	// @param	degree	input degree
+	// @return 	radian  arc system value
 	function toRadians(degree){
-		var res = Math.PI*(degree/180%2);
-		console.log("degree to radians---->",degree, res);
-		return res;
+		return Math.PI*(degree/180%2);
 	}
-	// distence
-	// @param two point Vertex
-	// @param	detail	if true, there will use sqrt function to get the detail distence, or not just for compare
-	function distence(point_a, point_b, detail) {
+	// @description		get the distence between point_a and point_b
+	// @param	a,b		two Vertex (whatever 3D or 2D vertex,but both should be in same Dimension())
+	// 			sqrtflag	default true, if false, there will use sqrt function to get the detail distence, or not just for compare
+	function distence(point_a, point_b, sqrtflag) {
 		let res;
 		let a = point_a	|| null, b = point_b || null;
+		let issqrt = sqrtflag || true;
 		if (!a&b) throw "Error param number in distence	";
-		// smart to divise to array or Vertex
-		if (a instanceof Array && b instanceof Array && a.length === 3 && 3 === b.length)
-			res = (a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) + (a[2]-b[2])*(a[2]-b[2]);
-		if (a instanceof Vertex && b instanceof Vertex)
+		// 2D vertex distence calculate
+		if (a instanceof Vertex2D && b instanceof Vertex2D){
+			res = (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y);
+		// 3D vertex distence calculate
+		} else if (a instanceof Vertex && b instanceof Vertex) {
 			res = (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) + (a.z-b.z)*(a.z-b.z);
-		console.log(a instanceof Vertex);
-		return detail?Math.sqrt(res):res;
+		// fast way Array vertex distence calculate
+		} else if (a instanceof Array && b instanceof Array) {
+			if (a.length === 3 && 3 === b.length) {
+				res = (a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) + (a[2]-b[2])*(a[2]-b[2]);
+			} else if (a.length === 2 && 2 === b.length) {
+				res = (a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]);
+			} else {
+				throw Error("Error length with point_a" + point_a + " and point_b " + point_b);
+			}
+		}
+		return issqrt?Math.sqrt(res):res;
 	}
+
+	// @description		mapping 3D Vertex to 2D Vertex
+	// @param	V 		3D Vertex
+	//			carmera carmera instance
 	function mapping(V, carmera) {
-	   	// Distance between the camera and the plane
+	   	// global variable distance , mean distance between camera center and canvas plane
 	   	return new Vertex2D(((V.x*2 - carmera.x)*distance/(carmera.z-V.z/3)), (canvas_H/2 - (V.y*2 - carmera.y)*distance/(carmera.z-V.z/3)));
 	}
 
+	// 粉刷
+	// @description		a important function to paint object on canvas
+	// @param	objects	list of objects
 	function render(objects, ctx, dx, dy) {
 		ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
 		ctx.fillStyle = 'rgba(0, 150, 255, 0.3)';
@@ -181,7 +203,10 @@
 	       }
 	   }
 	}
-	// draw objcet without perspective
+	// @description		draw objcet without perspective
+	// @param	objects	list of objects
+	// 			carmera carmera instance
+	// 			
 	function paint(objects, ctx, carmera, dx, dy) {
 		var crm = carmera;
 		ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';

@@ -1,3 +1,3 @@
 关于原型链：
 在function里，使用 this.__proto__.a = k,表示的是实例化该方法后的实例的 a 属性设置为 k，值得一提的是，在实例化中，this === this.__proto__ 返回的是 false
-但是如果给 this.a, this.__proto__.b 指定值的话，他们的表现形式均为
+但是如果给 this.a, this.__proto__.b 指定值的话，他们的表现形式均为实例
